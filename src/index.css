@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,700;1,700&display=swap');
+
+html,
+body,
+#root,
+.app,
+.content {
+  height: 100%;
+  width: 100%;
+  font-family: "Source Sans 3" , sans-serif;
+}
+
+.app{
+  display: flex;
+  position: relative;
+}
+
+::-webkit-scrollbar{
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track{
+  background: #e0e0e0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb{
+  background: #888;
+}
+
+/* Handle in hover */
+::-webkit-scrollbar-track:hover{
+  background: #555;
+}
+
+.ps-menu-button:hover{
+  background: #1F2A40 !important;
+  color: #68216f !important;
+}
+ 
+.ps-active{
+  color: #68216f !important;
+}
+
+.router-link{
+  text-decoration: none; 
+}
+
+/* overlay grid  */
+.css-hia42h-MuiCircularProgress-root {
+  color: #3e4396 !important;
+  width: 70px !important;
+  height: 70px !important;
+}
+.css-t89xny-MuiDataGrid-columnHeaderTitle{
+  font-size: 1.3em !important;
+}
+
+.css-c28rtp-MuiButtonBase-root-MuiButton-root{
+  color: #e0e0e0 !important;
+}

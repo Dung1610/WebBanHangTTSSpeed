@@ -12,7 +12,6 @@ import {
 import * as yup from "yup";
 import { useEffect, useState } from "react";
 import { Login as Lg } from "../../custom/LoginProcess";
-import { CheckCircleOutline } from "@mui/icons-material";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../theme";
 
@@ -68,6 +67,11 @@ const Login = () => {
             } else {
               localStorage.setItem("user", data.data.user.phone);
             }
+            if (data.data.user.name != null) {
+              localStorage.setItem("name", data.data.user.name);
+            } else {
+              localStorage.setItem("name", "Admin");
+            }
             window.location.href = "/";
           } else {
             alert("Bạn không có quyền truy cập trang này!");
@@ -105,6 +109,7 @@ const Login = () => {
         }) => (
           <form onSubmit={handleSubmit}>
             <Box
+              justifyItems="center"
               display="grid"
               gap="30px"
               gridTemplateColumns="repeat(4, minmax(0, 1fr))"
@@ -125,6 +130,7 @@ const Login = () => {
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
+              
                 fullWidth
                 variant="filled"
                 type="password"

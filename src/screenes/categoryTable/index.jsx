@@ -5,7 +5,17 @@ import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import { Box } from "@mui/material";
 import Tree from "../../custom/Tree";
-import Popup from "reactjs-popup";
+
+const styles = {
+  modalStyle1:{
+    position:'absolute',
+    top:'10%',
+    left:'10%',
+    overflow:'scroll',
+    height:'100%',
+    display:'block'
+  }
+};
 
 const CategoryTable = () => {
   CheckExpired();
@@ -14,7 +24,6 @@ const CategoryTable = () => {
   const colors = tokens(theme.palette.mode);
 
   const [listCategory, setListCategory] = useState([]);
-  const [listLevel, setListLevel] = useState([]);
 
   useEffect(() => {
     //get list level , category
@@ -32,7 +41,6 @@ const CategoryTable = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setListCategory(data.data);
       })
       .catch((error) => {
@@ -45,7 +53,7 @@ const CategoryTable = () => {
       <Box display="flex">
         <Header title="CATEGORIES TABLE" subtitle="Managing the Category" />
       </Box>
-      <Tree data={listCategory} />
+      <Tree data={listCategory}/>
     </Box>
   );
 };

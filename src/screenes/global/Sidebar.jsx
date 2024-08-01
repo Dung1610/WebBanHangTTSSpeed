@@ -16,6 +16,9 @@ import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import HistoryIcon from '@mui/icons-material/History';
+
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -102,10 +105,10 @@ const Sidebarr = () => {
                     fontWeight="bold"
                     sx={{ m: "10px 0 0 0" }}
                   >
-                    Van son
+                    {localStorage.getItem("name")}
                   </Typography>
                   <Typography variant="h5" color={colors.greenAccent[600]}>
-                    sonthu#gmail.com
+                    {localStorage.getItem("user")}
                   </Typography>
                 </Box>
               </Box>
@@ -140,6 +143,20 @@ const Sidebarr = () => {
                 title="Category Table"
                 to="/categoryTable"
                 icon={<CategoryOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="List Log"
+                to="/logList"
+                icon={<HistoryIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="List Card"
+                to="/listCard"
+                icon={<HistoryIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />

@@ -138,7 +138,6 @@ const UserTable = () => {
   useEffect(() => {
     //get roles
     getRoles();
-
     //get user
     getUserByRole();
   }, [role]);
@@ -236,7 +235,6 @@ const UserTable = () => {
         }}
       >
         <DataGrid
-          checkboxSelection
           rows={listUser}
           columns={columns}
           slots={{

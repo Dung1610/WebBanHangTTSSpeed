@@ -16,6 +16,8 @@ import Geography from "./screenes/geography";
 import Calendar from "./screenes/calendar";
 import Login from "./screenes/login";
 import CategoryTable from "./screenes/categoryTable";
+import LogList from "./screenes/logList";
+import ListCard from "./screenes/listCard";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -31,6 +33,8 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/userTable" element={<UserTable />} />
               <Route path="/categoryTable" element={<CategoryTable />} />
+              <Route path="/logList" element={<LogList />} />
+              <Route path="/listCard" element={<ListCard />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/form" element={<Form />} />

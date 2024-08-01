@@ -1,4 +1,5 @@
 import { Box, IconButton, useTheme } from "@mui/material";
+import * as React from 'react';
 import { useContext } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import InputBase from "@mui/material/InputBase";
@@ -8,6 +9,7 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import SearchIcon from "@mui/icons-material/Search";
+import Badge from '@mui/material/Badge';
 import LogoutOutlineIcon from "@mui/icons-material/LogoutOutlined";
 import { Link } from "react-router-dom";
 
@@ -15,6 +17,9 @@ const Topbar = ({}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+  const [invisible, setInvisible] = React.useState(false);
+  const [badge, setBadge] = React.useState(9);
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -22,51 +27,34 @@ const Topbar = ({}) => {
     window.location.href = "/login";
   };
 
-  return (
-    <Box display="flex" justifyContent="space-between" p={2}>
-      {/* Search bar */}
-      <Box
-        display="flex"
-        backgroundColor={colors.primary[400]}
-        borderRadius="3px"
-      >
-        <InputBase
-          sx={{ ml: 2, flex: 1 }}
-          placeholder="Search"
-          disabled={localStorage.getItem("token") ? false : true}
-        />
-        <IconButton
-          type="button"
-          sx={{ p: 1 }}
-          disabled={localStorage.getItem("token") ? false : true}
-        >
-          <SearchIcon />
-        </IconButton>
-      </Box>
+  const handleBadgeVisibility = () => {
+    setInvisible(!invisible);
+  };
 
+  return (
+    <Box display="flex" sx={{justifyContent: 'flex-end'}} p={2}>
       {/* ICONS */}
       <Box display="flex">
-        <IconButton onClick={colorMode.toggleColorMode}>
+        <IconButton onClick={colorMode.toggleColorMode} >
           {theme.palette.mode === "dark" ? (
-            <DarkModeOutlinedIcon />
+            <DarkModeOutlinedIcon  fontSize="large"/>
           ) : (
-            <LightModeOutlinedIcon />
+            <LightModeOutlinedIcon fontSize="large"/>
           )}
         </IconButton>
 
+
+        <IconButton onClick={handleBadgeVisibility} title={`Bạn Có ${badge} Thông Báo`}>
+      <Badge badgeContent={badge} color="secondary" invisible={invisible}>
+        <NotificationsOutlinedIcon fontSize="large"/>
+      </Badge>
+
+
+    </IconButton>
         {localStorage.getItem("token") && (
           <>
-            <IconButton>
-              <NotificationsOutlinedIcon />
-            </IconButton>
-            <IconButton>
-              <SettingsOutlinedIcon />
-            </IconButton>
-            <IconButton>
-              <PersonOutlineIcon />
-            </IconButton>
             <IconButton onClick={handleLogout}>
-              <LogoutOutlineIcon />
+              <LogoutOutlineIcon fontSize="large"/>
             </IconButton>
           </>
         )}

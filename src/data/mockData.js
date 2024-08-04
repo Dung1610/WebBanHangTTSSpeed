@@ -8,6 +8,36 @@ export const apiFake = [
     age: 35,
     phone: "(665)121-5454",
     access: "admin",
+    classifies: [
+      {
+        groupName: "Chọn size",
+        name: "XL",
+        code: "52154",
+        image: "abc",
+        quantity: 100,
+        increasePercent: 0,
+        priceAfterIncreasePercen: 200000,
+        status: 1
+      },{
+        groupName: "Chọn size",
+        name: "XL",
+        code: "52154",
+        image: "abc",
+        quantity: 100,
+        increasePercent: 0,
+        priceAfterIncreasePercen: 200000,
+        status: 1
+      },{
+        groupName: "Chọn size",
+        name: "XL",
+        code: "52154",
+        image: "abc",
+        quantity: 100,
+        increasePercent: 0,
+        priceAfterIncreasePercen: 200000,
+        status: 1
+      }
+    ]
   },
   {
     id: 2,
@@ -16,6 +46,28 @@ export const apiFake = [
     age: 42,
     phone: "(421)314-2288",
     access: "manager",
+    classifies: [
+      {
+        "groupName": "Chọn size",
+        "name": "XL",
+        "code": "52154",
+        "image": "abc",
+        "quantity": 100,
+        "increasePercent": 0,
+        "priceAfterIncreasePercent": 200000,
+        "status": 1
+      },
+      {
+        "groupName": "Chọn size",
+        "name": "L",
+        "code": "84",
+        "image": "abc",
+        "quantity": 100,
+        "increasePercent": 0,
+        "priceAfterIncreasePercent": 200000,
+        "status": 1
+      }
+    ]
   },
 ];
 

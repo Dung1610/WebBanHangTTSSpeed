@@ -16,7 +16,10 @@ import { NoLogin } from "../../custom/LoginProcess";
 import CustomPagination from "../../custom/CustomPagination";
 import { useEffect, useState } from "react";
 import { CheckExpired } from "../../custom/LoginProcess";
-
+import * as React from "react";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
 const LogList = () => {
   CheckExpired();
   NoLogin();
@@ -49,11 +52,23 @@ const LogList = () => {
     },
     {
       field: "user",
-      headerName: "Email/Phone",
+      headerName: "Người Dùng",
       flex: 1,
       cellClassName: "name-column--cell",
       renderCell: ({ row: { user } }) => {
-        return <>{user.email ? user.email : "null"} / {user.phone ? user.phone : "null"}</>;
+        return <><ListItem>
+        <ListItemAvatar>
+          <Avatar src={user.avatar ? user.avatar : "null"} />
+        </ListItemAvatar>
+        <ListItemText primary={user.name ? user.name : "null"} secondary={
+          <React.Fragment>
+          <Typography>
+          {user.email ? user.email : "null"}
+          </Typography>
+          {user.phone ? user.phone : "null"}
+        </React.Fragment>
+        }/>
+</ListItem></>;
       },
     },
   ];
@@ -159,6 +174,7 @@ const LogList = () => {
           loading={isLoading}
           rows={result}
           columns={columns}
+          rowHeight={90}
           slots={{
             toolbar: GridToolbar,
             pagination: CustomPagination,

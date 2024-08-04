@@ -18,6 +18,7 @@ import Login from "./screenes/login";
 import CategoryTable from "./screenes/categoryTable";
 import LogList from "./screenes/logList";
 import ListCard from "./screenes/listCard";
+import ProductCategory from "./screenes/productCategory";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -32,7 +33,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/userTable" element={<UserTable />} />
-              <Route path="/categoryTable" element={<CategoryTable />} />
+              <Route path="/categoryTable" element={<CategoryTable />}/>
+              <Route path="/product/:id" element={<ProductCategory />} />
               <Route path="/logList" element={<LogList />} />
               <Route path="/listCard" element={<ListCard />} />
               <Route path="/contacts" element={<Contacts />} />

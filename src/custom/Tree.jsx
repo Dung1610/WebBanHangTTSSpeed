@@ -23,6 +23,7 @@ import React, { useState } from "react";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import Alert from '@mui/material/Alert';
 import { myAxios } from "../Services/axios";
+import { Link } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -102,6 +103,11 @@ const TreeNode = ({ node }) => {
         </ListItemIcon>
         <ListItemText primary={node.name} />
         <Stack spacing={2} direction="row">
+          <Link to={`/product/${node.code}`} variant="contained" color="success">
+            <Typography variant="h6" color="#fff">
+              Xem Chi Tiết
+            </Typography>
+          </Link>
           <Button onClick={handleOpenAdd} variant="contained" color="success">
             <Typography variant="h6" color="#fff">
               Thêm danh mục con

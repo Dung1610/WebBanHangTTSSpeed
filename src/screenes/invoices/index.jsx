@@ -1,7 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataInvoices } from "../../data/mockData";
+import { apiFake, mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
 import { CheckExpired, NoLogin } from "../../custom/LoginProcess";
 import { render } from "@testing-library/react";
@@ -46,61 +46,49 @@ const Invoices = () => {
       flex: 1,
     },
     {
-      field: "cost",
-      headerName: "Cost",
-      flex: 1,
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "date",
-      headerName: "Date",
-      flex: 1,
-    },
-    {
       headerName: "Phân Loại",
       flex: 1,
-      renderCell: () => {
+      renderCell: ({ row: { classifies } }) => {
         return (
           <>
-         <Button variant="contained" onClick={openPopover} sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        Open Popover
-        </Button>
-        <Popover
-        open={Boolean(anchor)}
-        anchorEl={anchor}
-        anchorOrigin={{
-          vertical: 'left',
-          horizontal: 'left',
-        }}
-        onClose={()=>setAnchor(null)}
-      >
-        <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      <ListItem>
-        <ListItemAvatar>
-          <Avatar>
-            <ImageIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary="Photos" secondary="Jan 9, 2014" />
-      </ListItem>
-      <ListItem>
-        <ListItemAvatar>
-          <Avatar>
-            <WorkIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary="Work" secondary="Jan 7, 2014" />
-      </ListItem>
-      <ListItem>
-        <ListItemAvatar>
-          <Avatar>
-            <BeachAccessIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary="Vacation" secondary="July 20, 2014" />
-      </ListItem>
-    </List>
-      </Popover>
+          <Button
+              variant="contained"
+              onClick={openPopover}
+              sx={{ width: "100%", bgcolor: "background.paper" }}
+            >
+              Open Popover
+            </Button>
+            <Popover
+              open={Boolean(anchor)}
+              anchorEl={anchor}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                horizontal: "right",
+              }}
+              onClose={() => setAnchor(null)}
+            >
+              <List
+                sx={{
+                  width: "100%",
+                  maxWidth: 360,
+                  bgcolor: "background.paper",
+                }}
+              >
+          {classifies.map((i)=>(
+            <ListItem>
+            <ListItemAvatar>
+              <Avatar>
+                <BeachAccessIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={i.name} secondary={i.quantity} />
+          </ListItem>
+          ))}
+              </List>
+            </Popover>
       </>
         );
       },
@@ -139,7 +127,7 @@ const Invoices = () => {
           },
         }}
       >
-        <DataGrid rows={mockDataInvoices} columns={columns} />
+        <DataGrid rows={apiFake} columns={columns} />
       </Box>
     </Box>
   );

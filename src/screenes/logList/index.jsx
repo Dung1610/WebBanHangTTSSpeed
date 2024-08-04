@@ -72,13 +72,8 @@ const LogList = () => {
       },
     },
   ];
-
   useEffect(() => {
     getUserAndRole();
-    if(role == undefined && listLog != null){
-      setResult(listLog)
-    }
-    else{
       const arr = new Array();
       listLog.forEach((e) => {
         if (e.code == role) {
@@ -86,8 +81,6 @@ const LogList = () => {
         }
       });
       setResult(arr)
-    }
-    console.log(listLog)
   }, [role]);
 
   const getUserAndRole = () => {
@@ -102,8 +95,7 @@ const LogList = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data.data)
-        setListLog(data.data);
+        setListLog(data.data)
         const rol = new Array();
         let i = 0;
         while (data.data[i] != null) {
@@ -172,7 +164,7 @@ const LogList = () => {
       >
         <DataGrid
           loading={isLoading}
-          rows={result}
+          rows={result ? result : listLog}
           columns={columns}
           rowHeight={90}
           slots={{

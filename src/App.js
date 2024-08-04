@@ -17,8 +17,8 @@ import Calendar from "./screenes/calendar";
 import Login from "./screenes/login";
 import CategoryTable from "./screenes/categoryTable";
 import LogList from "./screenes/logList";
-import ListCard from "./screenes/listCard";
-import ProductCategory from "./screenes/productCategory";
+import ProductCategory from "./screenes/ProductCategory";
+import ShippingMethods from "./screenes/shippingMethods";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -36,7 +36,7 @@ function App() {
               <Route path="/categoryTable" element={<CategoryTable />}/>
               <Route path="/product/:id" element={<ProductCategory />} />
               <Route path="/logList" element={<LogList />} />
-              <Route path="/listCard" element={<ListCard />} />
+              <Route path="/shippingMethods" element={<ShippingMethods />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/form" element={<Form />} />

@@ -93,8 +93,6 @@ const TreeNode = ({ node }) => {
     setOpen(!open);
   };
 
-
-
   return (
     <>
       <ListItemButton sx={{ pl: (node.level + 1) * 4 }}>
@@ -103,11 +101,13 @@ const TreeNode = ({ node }) => {
         </ListItemIcon>
         <ListItemText primary={node.name} />
         <Stack spacing={2} direction="row">
-          <Link to={`/product/${node.code}`} variant="contained" color="success">
+        <Button onClick={handleOpenAdd} variant="contained" color="success">
+          <Link to={`/product/${node.code}`}>
             <Typography variant="h6" color="#fff">
               Xem Chi Tiết
             </Typography>
           </Link>
+          </Button>
           <Button onClick={handleOpenAdd} variant="contained" color="success">
             <Typography variant="h6" color="#fff">
               Thêm danh mục con

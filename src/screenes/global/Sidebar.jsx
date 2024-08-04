@@ -154,8 +154,8 @@ const Sidebarr = () => {
                 setSelected={setSelected}
               />
               <Item
-                title="List Card"
-                to="/listCard"
+                title="ShippingMethods"
+                to="/shippingMethods"
                 icon={<HistoryIcon />}
                 selected={selected}
                 setSelected={setSelected}

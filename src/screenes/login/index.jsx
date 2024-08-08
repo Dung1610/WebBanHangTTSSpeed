@@ -21,15 +21,16 @@ const initialValues = {
 };
 
 const checkoutSchema = yup.object().shape({
-  email: yup.string().email("invalid email").required("required"),
-  password: yup.string().required("required"),
+  email: yup.string().email("Email Không Đúng Định Dạng").required("Email Không Được Để Trống"),
+  password: yup.string().required("Mật Khẩu Không Được Để Trống"),
 });
 
 const Login = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  
+
   const [isLoading, setIsLoading] = useState(false);
+  const [thongBao, setThongBao] = useState(null);
   Lg();
   const getQueryParams = window.location.search
     .replace("?", "")
@@ -58,7 +59,6 @@ const Login = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data.data.user);
         if (data.status == 200) {
           if (data.data.roleCode == "quan-tri-vien") {
             localStorage.setItem("token", data.data.token);
@@ -74,15 +74,17 @@ const Login = () => {
             }
             window.location.href = "/";
           } else {
-            alert("Bạn không có quyền truy cập trang này!");
+            setThongBao("Bạn không có quyền truy cập trang này!")
           }
+          setThongBao(null)
           setIsLoading(false);
         } else {
-          alert(data.message);
           setIsLoading(false);
+          setThongBao("Tài Khoản Hoặc Mật Khẩu Không Chính Xác!")
         }
       })
       .catch((error) => {
+        setThongBao("Lỗi sever!!!!")
         setIsLoading(false);
       });
   };
@@ -125,12 +127,12 @@ const Login = () => {
                 onChange={handleChange}
                 value={values.email}
                 name="email"
+                size="medium"
                 error={!!touched.email && !!errors.email}
                 helperText={touched.email && errors.email}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
-              
                 fullWidth
                 variant="filled"
                 type="password"
@@ -139,6 +141,7 @@ const Login = () => {
                 onChange={handleChange}
                 value={values.password}
                 name="password"
+                size="medium"
                 error={!!touched.password && !!errors.password}
                 helperText={touched.password && errors.password}
                 sx={{ gridColumn: "span 4" }}
@@ -173,6 +176,18 @@ const Login = () => {
                 }}
               >
                 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!
+              </Alert>
+            )}
+            {thongBao && (
+              <Alert
+                variant="outlined"
+                severity="error"
+                sx={{
+                  m: "20px 200px 20px 200px",
+                  fontSize: "1em",
+                }}
+              >
+                {thongBao}
               </Alert>
             )}
 

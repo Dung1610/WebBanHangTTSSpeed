@@ -29,9 +29,7 @@ const Topbar = ({}) => {
   const [invisible, setInvisible] = React.useState(false);
   const [badge, setBadge] = React.useState(9);
   const [anchor, setAnchor] = useState(null);
-  const openPopover = (event) => {
-    setAnchor(event.currentTarget);
-  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -39,8 +37,9 @@ const Topbar = ({}) => {
     window.location.href = "/login";
   };
 
-  const handleBadgeVisibility = () => {
+  const handleBadgeVisibility = (event) => {
     setInvisible(!invisible);
+    setAnchor(event.currentTarget);
   };
 
   return (
@@ -64,9 +63,8 @@ const Topbar = ({}) => {
                 badgeContent={badge}
                 color="secondary"
                 invisible={invisible}
-                onClick={openPopover}
               >
-                <NotificationsOutlinedIcon fontSize="large" />
+                <NotificationsOutlinedIcon fontSize="large"/>
               </Badge>
             </IconButton>
             <Popover
@@ -78,6 +76,7 @@ const Topbar = ({}) => {
               }}
               transformOrigin={{
                 horizontal: "right",
+                vertical: 'top'
               }}
               onClose={() => setAnchor(null)}
             >

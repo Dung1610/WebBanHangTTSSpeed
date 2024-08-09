@@ -22,6 +22,7 @@ const GeographyChart = ({ isDashboard = false }) => {
       layers={['graticule', 'features', 'legends']}
       role="tooltip"
       value="value"
+      match="true"
       colors="blues"
       data={data}
       theme={{

@@ -62,6 +62,7 @@ const Login = () => {
         if (data.status == 200) {
           if (data.data.roleCode == "quan-tri-vien") {
             localStorage.setItem("token", data.data.token);
+            localStorage.setItem("refreshToken", data.data.user.refreshToken);
             if (data.data.user.email != null) {
               localStorage.setItem("user", data.data.user.email);
             } else {

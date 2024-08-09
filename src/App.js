@@ -17,7 +17,7 @@ import Calendar from "./screenes/calendar";
 import Login from "./screenes/login";
 import CategoryTable from "./screenes/categoryTable";
 import LogList from "./screenes/logList";
-import ProductCategory from "./screenes/ProductCategory";
+import ProductCategory from "./screenes/productCategory";
 import ShippingMethods from "./screenes/shippingMethods";
 
 function App() {

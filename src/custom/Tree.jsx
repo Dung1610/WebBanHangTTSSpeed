@@ -21,7 +21,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Modal from "@mui/material/Modal";
 import React, { useState } from "react";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import Alert from '@mui/material/Alert';
+import Alert from "@mui/material/Alert";
 import { myAxios } from "../Services/axios";
 import { Link } from "react-router-dom";
 
@@ -69,24 +69,45 @@ const TreeNode = ({ node }) => {
 
   const [newCategory, setNewCategory] = React.useState("");
   const AddNewCategory = (code) => {
-    console.log(newCategory)
-    if (newCategory!=null){
-      const res = myAxios.post("categories",{
-        name: newCategory,
-        parentCategoryCode: code,
-        avatar: ""
-      },{headers:
-        {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      }).catch((error) => {
-        console.error("Error:", error);
-      })
-      if (res != null){
-      handleCloseAdd();
-      }
+    if (newCategory != null && file != null) {
+      const formData = new FormData();
+      formData.append("files", file);
+      const resAvatar = myAxios
+        .post("http://localhost:5181/api/uploads", formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "content-type": "multipart/form-data",
+          },
+        })
+        .then((reponse) => {
+          if (reponse.data != null) {
+            const res = myAxios
+              .post(
+                "categories",
+                {
+                  name: newCategory,
+                  parentCategoryCode: code,
+                  avatar: reponse.data[0],
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
+              )
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+            if (res != null) {
+              handleCloseAdd();
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     }
-    return
+    return;
   };
 
   const handleClick = () => {
@@ -101,12 +122,12 @@ const TreeNode = ({ node }) => {
         </ListItemIcon>
         <ListItemText primary={node.name} />
         <Stack spacing={2} direction="row">
-        <Button onClick={handleOpenAdd} variant="contained" color="success">
-          <Link to={`/product/${node.code}`}>
-            <Typography variant="h6" color="#fff">
-              Xem Chi Tiết
-            </Typography>
-          </Link>
+          <Button onClick={handleOpenAdd} variant="contained" color="success">
+            <Link to={`/product/${node.code}`}>
+              <Typography variant="h6" color="#fff">
+                Xem Chi Tiết
+              </Typography>
+            </Link>
           </Button>
           <Button onClick={handleOpenAdd} variant="contained" color="success">
             <Typography variant="h6" color="#fff">
@@ -129,7 +150,7 @@ const TreeNode = ({ node }) => {
           <Box sx={style}>
             <CardMedia
               sx={{ height: 200 }}
-              image="https://flatsome.xyz/wp-content/uploads/2022/06/category.jpg"
+              image="https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
               title="green iguana"
             />
             <CardContent>
@@ -193,11 +214,12 @@ const TreeNode = ({ node }) => {
             )}
 
             <CardContent
-      sx={{
-        '& .MuiTextField-root': { m: 1},
-      }}
-      noValidate
-      autoComplete="off">
+              sx={{
+                "& .MuiTextField-root": { m: 1 },
+              }}
+              noValidate
+              autoComplete="off"
+            >
               <Typography variant="h1" textAlign={"center"} component="div">
                 Tên Danh Mục:
               </Typography>
@@ -207,17 +229,25 @@ const TreeNode = ({ node }) => {
                 size="medium"
                 required
                 fullWidth
-                onChange={(e)=>setNewCategory(e.target.value)}
+                onChange={(e) => setNewCategory(e.target.value)}
               />
               <Typography variant="h4" color="text.secondary">
                 Tên Danh Mục Cha: {node.name}
               </Typography>
             </CardContent>
-            {!newCategory ? <Alert variant="outlined" severity="error">
+            {!newCategory ? (
+              <Alert variant="outlined" severity="error">
                 Không Được Để Trống Tên Danh Mục
-            </Alert> : ""}
+              </Alert>
+            ) : (
+              ""
+            )}
             <CardActions>
-              <Button size="large" onClick={()=>AddNewCategory(node.code)} color="inherit">
+              <Button
+                size="large"
+                onClick={() => AddNewCategory(node.code)}
+                color="inherit"
+              >
                 <Typography gutterBottom variant="h5" component="div">
                   Thêm
                 </Typography>
@@ -255,7 +285,8 @@ const TreeNode = ({ node }) => {
 
 const Tree = ({ data }) => {
   return (
-    <List style={{maxHeight: '77vh', overflow: 'auto'}}
+    <List
+      style={{ maxHeight: "77vh", overflow: "auto" }}
       sx={{ width: "100%", maxWidth: "100%", bgcolor: "background.paper" }}
       component="nav"
       aria-labelledby="nested-list-subheader"
@@ -266,7 +297,7 @@ const Tree = ({ data }) => {
       }
     >
       {data.map((rootNode) => (
-        <TreeNode key={rootNode.id} node={rootNode}/>
+        <TreeNode key={rootNode.id} node={rootNode} />
       ))}
     </List>
   );

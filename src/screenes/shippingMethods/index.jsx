@@ -1,11 +1,5 @@
 import {
-  Avatar,
   Box,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Typography,
   useTheme,
   Button,
@@ -19,11 +13,23 @@ import CustomPagination from "../../custom/CustomPagination";
 import { useEffect, useState } from "react";
 import { CheckExpired } from "../../custom/LoginProcess";
 import { myAxios } from "../../Services/axios";
-import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
 import Modal from "@mui/material/Modal";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import ControlGeocoder from "leaflet-control-geocoder";
+import L from "leaflet";
+import Paper from "@mui/material/Paper";
+import InputBase from "@mui/material/InputBase";
+import IconButton from "@mui/material/IconButton";
+import SearchIcon from "@mui/icons-material/Search";
 
 const style = {
   position: "absolute",
@@ -36,6 +42,28 @@ const style = {
   p: 4,
 };
 
+// Tạo một icon tùy chỉnh cho marker
+const customIcon = new L.Icon({
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  shadowSize: [41, 41],
+});
+
+const MapClickHandler = ({ onClick }) => {
+  useMapEvents({
+    click(event) {
+      const { lat, lng } = event.latlng;
+      onClick(lat, lng);
+    },
+  });
+  return null;
+};
+
 const ShippingMethods = () => {
   CheckExpired();
   NoLogin();
@@ -46,6 +74,46 @@ const ShippingMethods = () => {
   const [openModal, setOpenModal] = React.useState(false);
   const handleOpen = () => setOpenModal(true);
   const handleClose = () => setOpenModal(false);
+
+  const [position, setPosition] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleMapClick = (lat, lng) => {
+    var urlGetUser = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
+    fetch(urlGetUser)
+      .then((response) => response.json())
+      .then((data) => {
+        setSearchQuery(data.display_name);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    setPosition({ lat, lng });
+  };
+
+  const handleSearch = () => {
+    const geocoder = ControlGeocoder.nominatim();
+    geocoder.geocode(searchQuery, (results) => {
+      if (results && results.length > 0) {
+        const { lat, lng } = results[0].center;
+        setPosition({ lat, lng });
+      } else {
+        alert("No results found");
+      }
+    });
+  };
+
+  // Thành phần để di chuyển bản đồ đến vị trí mới
+  const MapUpdater = ({ position }) => {
+    const map = useMap();
+    React.useEffect(() => {
+      if (position) {
+        map.setView([position.lat, position.lng], 11); // Cập nhật vị trí và zoom level
+      }
+    }, [position, map]);
+    return null;
+  };
+
   const columns = [
     {
       field: "name",
@@ -117,18 +185,64 @@ const ShippingMethods = () => {
       <Box display="flex">
         <Header title="USER TABLE" subtitle="Managing the User" />
       </Box>
-      <Button size="small" onClick={handleOpen} variant="contained" color="success">
-          <Typography gutterBottom variant="h6" component="div">
-            Thêm Địa Chỉ
-          </Typography>
-        </Button>
+      <Button
+        size="small"
+        onClick={handleOpen}
+        variant="contained"
+        color="success"
+      >
+        <Typography gutterBottom variant="h6" component="div">
+          Thêm Địa Chỉ
+        </Typography>
+      </Button>
       <Modal
         open={openModal}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          
+          <Paper
+            sx={{
+              p: "2px 4px",
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <InputBase
+              sx={{ ml: 1, flex: 1, fontSize: "1.5rem" }}
+              placeholder="Search"
+              inputProps={{ "aria-label": "search google maps" }}
+              id="fullWidth"
+              variant="filled"
+              required
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <IconButton onClick={handleSearch} sx={{ p: "10px" }}>
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+          <MapContainer
+            center={[21.0283334, 105.854041]}
+            zoom={10}
+            style={{ height: "70vh", width: "70vh" }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <MapClickHandler onClick={handleMapClick} />
+            <MapUpdater position={position} />
+            {position && (
+              <Marker position={[position.lat, position.lng]} icon={customIcon}>
+                <Popup>
+                  Vĩ độ: {position.lat} <br /> Kinh độ: {position.lng} <br />{" "}
+                  Địa Chỉ: {searchQuery}
+                </Popup>
+              </Marker>
+            )}
+          </MapContainer>
           <CardActions>
             <Button size="large" color="inherit">
               <Typography gutterBottom variant="h5" component="div">

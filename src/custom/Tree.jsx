@@ -150,7 +150,7 @@ const TreeNode = ({ node }) => {
           <Box sx={style}>
             <CardMedia
               sx={{ height: 200 }}
-              image="https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
+              image={`${node.image}`.includes("http") ? node.image :`http://localhost:5181/api/get/image/${node.image}`}
               title="green iguana"
             />
             <CardContent>
@@ -196,7 +196,7 @@ const TreeNode = ({ node }) => {
                   }}
                   type="file"
                 />
-              </CardMedia> // anh lay tu api
+              </CardMedia>
             ) : (
               <CardMedia
                 sx={{ height: 200 }}

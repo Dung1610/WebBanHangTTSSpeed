@@ -25,7 +25,7 @@ import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
-import Stack from "@mui/material/Stack";
+import CardContent from "@mui/material/CardContent";
 import {
   Unstable_NumberInput as BaseNumberInput,
   numberInputClasses,
@@ -105,12 +105,26 @@ const ShippingMethods = () => {
   const [newShippingMethods, setNewShippingMethods] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [openModal, setOpenModal] = React.useState(false);
+  const [openModal2, setOpenModal2] = React.useState(false);
+  const handleOpen2 = () => setOpenModal2(true);
+  const handleClose2 = () => setOpenModal2(false)
   const handleOpen = () => setOpenModal(true);
-  const handleClose = () => setOpenModal(false);
-  const [value, setValue] = React.useState(null);
+  const handleClose = () => {
+    setNewShippingMethods(null)
+    setPosition(null)
+    setSearchQuery(null)
+    setOpenModal(false)
+    setValueEnsure(null)
+    setValuePrice(null)
+  }
+  const [valueEnsure, setValueEnsure] = React.useState(null);
+  const [valuePrice, setValuePrice] = React.useState(null);
   const [position, setPosition] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [fetchTrigger, setFetchTrigger] = useState(false);
+  const handleRefresh = () => {
+    setFetchTrigger(prev => !prev);
+  };
   const handleMapClick = (lat, lng) => {
     var urlGetUser = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
     fetch(urlGetUser)
@@ -194,7 +208,7 @@ const ShippingMethods = () => {
 
   useEffect(() => {
     getshippingMethods();
-  }, []);
+  }, [fetchTrigger]);
 
   const getshippingMethods = () => {
     myAxios
@@ -212,6 +226,35 @@ const ShippingMethods = () => {
         console.error("Error:", error);
       });
   };
+
+  const addNewShippingMethods = () =>{
+    handleClose()
+    handleClose2()
+    setIsLoading(true)
+    myAxios
+    .post(
+      "shippingMethods",
+      {
+        name: newShippingMethods,
+        location: searchQuery,
+        lat: `${position.lat}`,
+        long: `${position.lng}`,
+        ensure: valueEnsure,
+        price: valuePrice
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    ).then(function (response) {
+      handleRefresh()
+    })
+    .catch((error) => {
+      setIsLoading(false)
+      console.error("Error:", error);
+    });
+  }
 
   return (
     <Box m="20px">
@@ -234,6 +277,20 @@ const ShippingMethods = () => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
+          <CardActions dir="rtl">
+            <Button size="large" onClick={handleClose} variant="outlined" color="error">
+              <Typography gutterBottom variant="h5" component="div">
+                Đóng
+              </Typography>
+            </Button>
+            {newShippingMethods != null && valueEnsure != null && valuePrice != null && searchQuery != null ? 
+            <Button sx={{ mr: "15px" }} onClick={handleOpen2} size="large" variant="outlined" color="success">
+            <Typography gutterBottom variant="h5" component="div">
+              Thêm
+            </Typography>
+          </Button>
+            : null}
+          </CardActions>
           <Paper
             sx={{
               p: "2px 4px",
@@ -276,68 +333,79 @@ const ShippingMethods = () => {
               </Marker>
             )}
           </MapContainer>
+          <Box sx={{m:'10px' , display: 'flex', alignItems: 'flex-end' }}>
+          <Typography>
+                Tên Đơn Vị Vận Chuyển
+          </Typography>
           <TextField
-            id="fullWidth"
+            id="input-with-sx"
+            label="Tên Đơn Vị Vận Chuyển"
             variant="filled"
             size="medium"
             required
             fullWidth
             onChange={(e) => setNewShippingMethods(e.target.value)}
           />
-          <Stack
-              direction="row"
-              justifyContent="space-evenly"
-              alignItems="center"
-              spacing={0}
-          >
-            <Item>
-              <Typography variant="h5" textAlign={"center"} component="div">
-                Tên Danh Mục:
+          </Box>
+              <Typography variant="h5" sx={{mt: '10px'}}>
+                Giới Hạn Giao
               </Typography>
               <NumberInput
                 aria-label="Demo number input"
                 placeholder="Type a number…"
-                value={value}
-                onChange={(event, val) => setValue(val)}
+                value={valueEnsure}
+                onChange={(e,val) => setValueEnsure(val)}
               />
-            </Item>
-            <Item>
-            <Typography variant="h5" textAlign={"center"} component="div">
-                Tên Danh Mục:
+              <Typography variant="h5" sx={{mt: '10px'}}>
+                Giá
               </Typography>
               <NumberInput
                 aria-label="Demo number input"
                 placeholder="Type a number…"
-                value={value}
-                onChange={(event, val) => setValue(val)}
+                value={valuePrice}
+                onChange={(e,val) => setValuePrice(val)}
               />
-            </Item>
-            <Item>
-            <Typography variant="h5" textAlign={"center"} component="div">
-                Tên Danh Mục:
-              </Typography>
-              <NumberInput
-                aria-label="Demo number input"
-                placeholder="Type a number…"
-                value={value}
-                onChange={(event, val) => setValue(val)}
-              />
-            </Item>
-          </Stack>
-          <CardActions>
-            <Button size="large" color="inherit">
-              <Typography gutterBottom variant="h5" component="div">
-                Thêm Danh Mục Con
-              </Typography>
-            </Button>
-            <Button size="large" onClick={handleClose} color="inherit">
-              <Typography gutterBottom variant="h5" component="div">
-                Đóng
-              </Typography>
-            </Button>
-          </CardActions>
         </Box>
       </Modal>
+
+{/* modal 2 */}
+          <Modal
+          open={openModal2}
+          onClose={handleClose2}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <CardContent>
+              <Typography gutterBottom variant="h4" component="div">
+                Tên Đơn Vị: {newShippingMethods}
+              </Typography>
+              <Typography variant="h4" color="text.secondary">
+                Địa Chỉ: {searchQuery}
+              </Typography>
+              <Typography variant="h4" color="text.secondary">
+                Giới Hạn Giao: {valueEnsure} 
+              </Typography>
+              <Typography variant="h4" color="text.secondary">
+               Giá: {valuePrice} 
+               {/* Vĩ độ: {position.lat} <br /> Kinh độ: {position.lng} */}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button size="large"  color="inherit">
+                <Typography gutterBottom  variant="h5" onClick={()=>addNewShippingMethods()} component="div">
+                  Thêm Địa Chỉ Mới
+                </Typography>
+              </Button>
+              <Button size="large" onClick={handleClose2} color="inherit">
+                <Typography gutterBottom variant="h5" component="div">
+                  Quay Lại
+                </Typography>
+              </Button>
+            </CardActions>
+          </Box>
+        </Modal>
+
       <Box
         m="40px 0 0 0"
         height="75vh"

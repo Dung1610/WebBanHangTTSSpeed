@@ -44,7 +44,6 @@ const ProductCategory = () => {
       field: "author",
       headerName: "Người Bán",
       flex: 2,
-      width: 250,
       renderCell: ({ row: { author } }) => {
         return (
           <>
@@ -79,32 +78,27 @@ const ProductCategory = () => {
       headerName: "Miêu Tả",
       sortable: false,
       flex: 1,
-      width: 20,
     },
     {
       field: "price",
       headerName: "Giá",
       flex: 1,
-      width: 20,
     },
     {
       field: "priceSaleOff",
       headerName: "Giảm Giá ",
       flex: 1,
-      width: 20,
     },
     {
       field: "quantitySelled",
       headerName: "Số Lượng Đã Bán",
       flex: 1,
-      width: 20,
     },
     {
       field: "classifies",
       headerName: "Phân Loại",
       sortable: false,
       flex: 1,
-      width: 40,
       renderCell: ({ row: { classifies } }) => {
         return (
           <>

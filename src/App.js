@@ -19,6 +19,8 @@ import CategoryTable from "./screenes/categoryTable";
 import LogList from "./screenes/logList";
 import ProductCategory from "./screenes/productCategory";
 import ShippingMethods from "./screenes/shippingMethods";
+import ListBill from "./screenes/listBill";
+import Panner from "./screenes/panner";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -36,6 +38,8 @@ function App() {
               <Route path="/categoryTable" element={<CategoryTable />}/>
               <Route path="/product/:id" element={<ProductCategory />} />
               <Route path="/logList" element={<LogList />} />
+              <Route path="/listBill" element={<ListBill />} />
+              <Route path="/panner" element={<Panner />} />
               <Route path="/shippingMethods" element={<ShippingMethods />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/invoices" element={<Invoices />} />

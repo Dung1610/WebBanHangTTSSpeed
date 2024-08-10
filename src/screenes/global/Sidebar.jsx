@@ -154,6 +154,20 @@ const Sidebarr = () => {
                 setSelected={setSelected}
               />
               <Item
+                title="List Bill"
+                to="/listBill"
+                icon={<HistoryIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Panner"
+                to="/panner"
+                icon={<HistoryIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
                 title="ShippingMethods"
                 to="/shippingMethods"
                 icon={<HistoryIcon />}

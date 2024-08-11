@@ -5,15 +5,6 @@ import Topbar from "./screenes/global/Topbar";
 import Dashboard from "./screenes/dashboard";
 import Sidebarr from "./screenes/global/Sidebar";
 import UserTable from "./screenes/userTable";
-import Invoices from "./screenes/invoices";
-import Contacts from "./screenes/contacts";
-import Bar from "./screenes/bar";
-import Form from "./screenes/form";
-import Line from "./screenes/line";
-import Pie from "./screenes/pie";
-import FAQ from "./screenes/faq";
-import Geography from "./screenes/geography";
-import Calendar from "./screenes/calendar";
 import Login from "./screenes/login";
 import CategoryTable from "./screenes/categoryTable";
 import LogList from "./screenes/logList";
@@ -41,15 +32,6 @@ function App() {
               <Route path="/listBill" element={<ListBill />} />
               <Route path="/panner" element={<Panner />} />
               <Route path="/shippingMethods" element={<ShippingMethods />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/invoices" element={<Invoices />} />
-              <Route path="/form" element={<Form />} />
-              <Route path="/bar" element={<Bar />} />
-              <Route path="/pie" element={<Pie />} />
-              <Route path="/line" element={<Line />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/geography" element={<Geography />} />
-              <Route path="/calendar" element={<Calendar />} />
               <Route path="/login/:tokenExpired?" element={<Login />} />
             </Routes>
           </main>

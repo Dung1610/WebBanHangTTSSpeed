@@ -69,8 +69,6 @@ const RefreshToken = () => {
         } else {
           localStorage.setItem("name", "Admin");
         }
-        console.log("refresh-token con han");
-        console.log("lay token moi");
       }
     })
     .catch((error) => {

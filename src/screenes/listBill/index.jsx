@@ -36,6 +36,7 @@ const ListBill = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [value, setValue] = React.useState(0);
   const [billAll, setBillAll] = useState([]);
+  const [result, setResult] = useState([]);
   const [anchor, setAnchor] = useState(null);
   const openPopover = (event) => {
     setAnchor(event.currentTarget);
@@ -191,6 +192,7 @@ const ListBill = () => {
               <Button
                 variant="contained"
                 sx={{ width: "100%",backgroundColor:"red"}}
+                onClick={()=>updateStatus()}
               >
                 Chưa Thanh Toán
               </Button>
@@ -237,16 +239,24 @@ const ListBill = () => {
   useEffect(() => {
     getBill();
   }, []);
+
   useEffect(() => {
-        const rol = new Array();
-        let i = 0;
-        while (billAll[i] != null) {
-          if (billAll[i].status == value) {
-            rol.push(billAll[i]);
+    setIsLoading(true);
+    const rol = new Array();
+    let i = 0;
+    if(value == -1){
+      setResult(billAll)
+    setIsLoading(false);
+    }else{
+      while (billAll[i] != null) {
+        if (billAll[i].status == value) {
+          rol.push(billAll[i]);
           }
           i++;
         }
-        setBillAll(rol)
+    setResult(rol)
+    setIsLoading(false);
+    }
   }, [value]);
 
   const getBill = () => {
@@ -267,6 +277,27 @@ const ListBill = () => {
       });
   };
 
+  const updateStatus = (code,status) => {
+    setIsLoading(true);
+    myAxios
+      .post("bills/update-status",
+        {
+          code: code,
+          status: status
+        },{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(function (response) {
+        setIsLoading(false)
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        console.error("Error:", error);
+      });
+  }
+
   return (
     <Box m="10px">
       <Header
@@ -275,11 +306,11 @@ const ListBill = () => {
       />
       <Box sx={{ borderBottom: 1, borderColor: 'Highlight' }}>
         <Tabs textColor="inherit" value={value} onChange={(e,value)=>setValue(value)}>
-        <Tab label="Tất Cả" value={0}/>
-          <Tab label="Chưa Thanh Toán" value={1}/>
-          <Tab label="Chưa Vận Chuyển" value={2}/>
-          <Tab label="Chờ Giao Hàng / Đã Vận Chuyển" value={3}/>
-          <Tab label="Hoàn Thành" value={4}/>
+        <Tab label="Tất Cả" value={-1}/>
+          <Tab label="Chưa Thanh Toán" value={0}/>
+          <Tab label="Chưa Vận Chuyển" value={1}/>
+          <Tab label="Chờ Giao Hàng / Đã Vận Chuyển" value={2}/>
+          <Tab label="Hoàn Thành" value={3}/>
         </Tabs>
       </Box>
       <Box
@@ -314,7 +345,7 @@ const ListBill = () => {
         }}
       >
         <DataGrid
-          rows={billAll}
+          rows={result}
           columns={columns}
           getRowId={() => crypto.randomUUID()}
           slots={{

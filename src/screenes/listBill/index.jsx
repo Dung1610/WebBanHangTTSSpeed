@@ -34,7 +34,7 @@ const ListBill = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isLoading, setIsLoading] = useState(true);
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(-1);
   const [billAll, setBillAll] = useState([]);
   const [result, setResult] = useState([]);
   const [anchor, setAnchor] = useState(null);
@@ -185,16 +185,16 @@ const ListBill = () => {
       headerName: "Trạng Thái",
       flex: 1,
       cellClassName: "name-column--cell",
-      renderCell: ({ row: { status } }) => {
+      renderCell: ({ row: { status,code } }) => {
         if(status == 0){
           return (
             <>
               <Button
                 variant="contained"
                 sx={{ width: "100%",backgroundColor:"red"}}
-                onClick={()=>updateStatus()}
+                onClick={()=>updateStatus(code,status+1)}
               >
-                Chưa Thanh Toán
+                Thanh Toán
               </Button>
             </>
           );
@@ -204,8 +204,9 @@ const ListBill = () => {
               <Button
                 variant="contained"
                 sx={{ width: "100%",backgroundColor:"pink"}}
+                onClick={()=>updateStatus(code,status+1)}
               >
-                Chưa Vận Chuyển
+                Vận Chuyển
               </Button>
             </>
           );
@@ -215,8 +216,9 @@ const ListBill = () => {
               <Button
                 variant="contained"
                 sx={{ width: "100%",backgroundColor:"yellowgreen"}}
+                onClick={()=>updateStatus(code,status+1)}
               >
-                Chờ Giao Hàng / Đã Vận Chuyển
+                Giao Hàng
               </Button>
             </>
           );
@@ -290,6 +292,7 @@ const ListBill = () => {
         },
       })
       .then(function (response) {
+        getBill()
         setIsLoading(false)
       })
       .catch((error) => {

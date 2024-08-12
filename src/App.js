@@ -33,6 +33,7 @@ function App() {
               <Route path="/panner" element={<Panner />} />
               <Route path="/shippingMethods" element={<ShippingMethods />} />
               <Route path="/login/:tokenExpired?" element={<Login />} />
+              <Route path="/sellMan" element={<Dashboard />} />
             </Routes>
           </main>
         </div>

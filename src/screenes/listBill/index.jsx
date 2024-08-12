@@ -270,13 +270,14 @@ const ListBill = () => {
         },
       })
       .then(function (response) {
-        setBillAll(response.data)
         setIsLoading(false)
+        setBillAll(response.data)
+        setResult(response.data)
       })
       .catch((error) => {
-        setIsLoading(false);
         console.error("Error:", error);
       });
+    setIsLoading(false)
   };
 
   const updateStatus = (code,status) => {

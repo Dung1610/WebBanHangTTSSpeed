@@ -1,16 +1,9 @@
 import {
-  Avatar,
   Box,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Typography,
   useTheme,
   Button,
   Alert,
-  Input,
 } from "@mui/material";
 import * as React from "react";
 import { tokens } from "../../theme";
@@ -30,8 +23,6 @@ import Stack from '@mui/material/Stack';
 const Panner = () => {
   CheckExpired();
   NoLogin();
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
   const [banner, setBanner] = useState([]);
   const [fetchTrigger, setFetchTrigger] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,12 +76,12 @@ const Panner = () => {
               handleRefresh();
             });
         }
-        return
       })
       .catch((error) => {
         setResponse({ error: error.message });
         console.error("Error:", error);
       });
+      handleRefresh();
   };
 
   const getBanner = () => {
@@ -103,7 +94,6 @@ const Panner = () => {
       .then(function (response) {
         setFiles(null)
         setIsLoading(false);
-        console.log(response.data);
         setBanner(response.data);
       })
       .catch((error) => {

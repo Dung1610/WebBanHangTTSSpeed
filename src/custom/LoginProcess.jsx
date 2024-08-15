@@ -6,7 +6,10 @@ const NoLogin = () => {
 
 const Login = () => {
   if (localStorage.getItem("token")) {
+    if(!localStorage.getItem("role")){
     window.location.href = "/";
+    }
+    window.location.href = "/seller";
   }
 };
 
@@ -26,6 +29,7 @@ const CheckExpired = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         localStorage.removeItem("name");
+        localStorage.removeItem("role");
         console.log("Token het han");
         RefreshToken();
       }
@@ -54,10 +58,14 @@ const RefreshToken = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         localStorage.removeItem("name");
+        localStorage.removeItem("role");
         localStorage.removeItem("refreshToken");
         window.location.href = "/login";
       }
       if (data.status === 200) {
+        if(data.data.roleCode == "nguoi-ban"){
+          localStorage.setItem("role", data.data.roleCode);
+        }
         localStorage.setItem("token", data.data.token);
         if (data.data.user.email != null) {
           localStorage.setItem("user", data.data.user.email);

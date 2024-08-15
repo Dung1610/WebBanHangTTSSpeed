@@ -12,6 +12,7 @@ import ProductCategory from "./screenes/productCategory";
 import ShippingMethods from "./screenes/shippingMethods";
 import ListBill from "./screenes/listBill";
 import Panner from "./screenes/panner";
+import Seller from "./screenes/seller";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -24,16 +25,15 @@ function App() {
           <main className="content">
             <Topbar />
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/userTable" element={<UserTable />} />
+            <Route path="/seller" element={<Seller />} />
+              <Route path="/" element={<UserTable />} />
               <Route path="/categoryTable" element={<CategoryTable />}/>
               <Route path="/product/:id" element={<ProductCategory />} />
               <Route path="/logList" element={<LogList />} />
               <Route path="/listBill" element={<ListBill />} />
-              <Route path="/panner" element={<Panner />} />
+              <Route path="/banner" element={<Panner />} />
               <Route path="/shippingMethods" element={<ShippingMethods />} />
               <Route path="/login/:tokenExpired?" element={<Login />} />
-              <Route path="/sellMan" element={<Dashboard />} />
             </Routes>
           </main>
         </div>

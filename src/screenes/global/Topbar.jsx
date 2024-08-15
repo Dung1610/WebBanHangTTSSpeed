@@ -29,6 +29,7 @@ const Topbar = ({}) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
     localStorage.removeItem("name");
     window.location.href = "/login";
   };
@@ -51,7 +52,9 @@ const Topbar = ({}) => {
         </IconButton>
         {localStorage.getItem("token") && (
           <>
-            <IconButton
+          {localStorage.getItem("token") == 'nguoi-ban' ? 
+          <>
+          <IconButton
               onClick={handleBadgeVisibility}
               title={`Bạn Có ${badge} Thông Báo`}
             >
@@ -268,6 +271,7 @@ const Topbar = ({}) => {
                   </ListItem>
                 </List>
             </Popover>
+            </> : null}
             <IconButton onClick={handleLogout}>
               <LogoutOutlineIcon fontSize="large" />
             </IconButton>

@@ -74,7 +74,22 @@ const Login = () => {
               localStorage.setItem("name", "Admin");
             }
             window.location.href = "/";
-          } else {
+          }else if(data.data.roleCode == "nguoi-ban"){
+            localStorage.setItem("token", data.data.token);
+            localStorage.setItem("role", data.data.roleCode);
+            localStorage.setItem("refreshToken", data.data.user.refreshToken);
+            if (data.data.user.email != null) {
+              localStorage.setItem("user", data.data.user.email);
+            } else {
+              localStorage.setItem("user", data.data.user.phone);
+            }
+            if (data.data.user.name != null) {
+              localStorage.setItem("name", data.data.user.name);
+            } else {
+              localStorage.setItem("name", "Admin");
+            }
+            window.location.href = "/seller";
+          }else {
             setThongBao("Bạn không có quyền truy cập trang này!")
           }
           setThongBao(null)

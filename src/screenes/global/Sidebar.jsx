@@ -34,7 +34,7 @@ const Sidebarr = () => {
   const pathname = window.location.pathname;
   const [selected, setSelected] = useState(pathname);
 
-  if (localStorage.getItem("token")) {
+  if (localStorage.getItem("token") && !localStorage.getItem("role")) {
     return (
       <Box>
         <Sidebar
@@ -151,8 +151,8 @@ const Sidebarr = () => {
                 setSelected={setSelected}
               />
               <Item
-                title="Panner"
-                to="/panner"
+                title="Banner"
+                to="/banner"
                 icon={<HistoryIcon />}
                 selected={selected}
                 setSelected={setSelected}

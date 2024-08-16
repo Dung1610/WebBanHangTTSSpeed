@@ -53,6 +53,23 @@ const modalStyle = {
   p: 4,
 };
 
+function convertTimeString(timeString) {
+  const [date, time, period] = timeString.split(" ");
+  const [day, month, year] = date.split("/");
+  const [hours, minutes, seconds] = time.split(":");
+
+  let hour24 = parseInt(hours, 10);
+  if (period === "CH" && hour24 !== 12) {
+    hour24 += 12;
+  } else if (period === "SA" && hour24 === 12) {
+    hour24 = 0;
+  }
+
+  const dateTime = new Date(year, month - 1, day, hour24, minutes, seconds);
+
+  return dateTime.toLocaleTimeString();
+}
+
 const Seller = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -60,11 +77,12 @@ const Seller = () => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  const [listMessage, setListMessage] = useState([]);
+  const [message, setMessage] = useState([]);
+  const [reply, setReply] = useState("");
+  const [code, setCode] = useState(0);
+  const [selectedChat, setSelectedChat] = useState(null);
   const [openM, setOpenM] = useState(false);
-
-  const handleOpenM = () => setOpenM(true);
-  const handleCloseM = () => setOpenM(false);
 
   const [product, setProduct] = useState({
     name: "",
@@ -79,6 +97,29 @@ const Seller = () => {
     ],
     images: [],
   });
+
+  const handleSelectMessage = (code, index) => {
+    setCode(code);
+    setSelectedChat(index);
+    messByCode();
+    const websocket = new WebSocket(
+      `ws://localhost:5181/ws/chat?boxchatCode=${code}`
+    );
+    websocket.onopen = () => console.log("WebSocket connected");
+    websocket.onerror = (error) => console.error("WebSocket error:", error);
+    websocket.onmessage = (event) => {
+      messByCode()
+      console.log(event.data.status)
+    };
+    websocket.onclose = () => console.log("WebSocket disconnected");
+    return () => {
+      if (websocket) {
+        websocket.close();
+        console.log("WebSocket connection closed");
+      }
+    };
+  };
+
 
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -118,6 +159,7 @@ const Seller = () => {
       });
   };
 
+  // thêm sản phẩm
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
@@ -210,15 +252,18 @@ const Seller = () => {
       }
     }
   };
+  // thêm sản phẩm
 
   // tin nhan
-  const [listMessage, setListMessage] = useState([]);
-  const [message, setMessage] = useState([]);
-  const [reply, setReply] = useState("");
 
-  const send = (code) => {};
+  const handleOpenM = () => setOpenM(true);
+  const handleCloseM = () => {
+    setReply(null);
+    setOpenM(false);
+    setMessage(null);
+  };
 
-  const handleSelectMessage = (code) => {
+  const messByCode = () => {
     myAxios
       .get(`messages/get/${code}`, {
         headers: {
@@ -233,12 +278,33 @@ const Seller = () => {
       });
   };
 
-  
   const handleReplyChange = (e) => setReply(e.target.value);
 
   const handleSendReply = () => {
-    alert("Phản hồi đã được gửi!");
-    setReply("");
+    if (reply == null && message[0].receiver.username == null) return;
+    myAxios
+      .post(
+        `messages/create`,
+        {
+          sender: message[0].receiver.username,
+          message: reply,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+      .then(function (response) {
+        console.log(response);
+        if (response.status == 201) {
+          messByCode();
+          setReply("");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   return (
@@ -259,6 +325,17 @@ const Seller = () => {
             onClick={handleOpen}
           >
             Thêm Sản Phẩm
+          </Button>
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+          >
+            soket
           </Button>
         </Box>
         <Box>
@@ -584,7 +661,7 @@ const Seller = () => {
         </Box>
       </Modal>
 
-      {/* tin nhan */}
+      {/* tin nhắn */}
       <Modal
         open={openM}
         onClose={handleCloseM}
@@ -609,16 +686,24 @@ const Seller = () => {
               <Typography variant="h6">Danh Sách Tin Nhắn</Typography>
             </Box>
             <List>
-              {listMessage.map((msg) => (
+              {listMessage.map((msg, index) => (
                 <React.Fragment key={msg.code}>
                   <List
+                    key={index}
                     sx={{
                       width: "100%",
                       maxWidth: 360,
                       bgcolor: "background.paper",
+                      borderRight: "1px solid #ddd",
+                      backgroundColor:
+                        selectedChat === index ? "#d1eaff" : "transparent",
+                      "&:hover": {
+                        backgroundColor:
+                          selectedChat === index ? "#b0d1ff" : "#e0e0e0",
+                      },
                     }}
                     button
-                    onClick={() => handleSelectMessage(msg.code)}
+                    onClick={() => handleSelectMessage(msg.code, index)}
                   >
                     <ListItem alignItems="flex-start">
                       <ListItemAvatar>
@@ -668,69 +753,92 @@ const Seller = () => {
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
-                flex: 1,
+                width: "100%",
+                margin: "20px auto",
                 padding: 2,
+                backgroundColor: "#fff",
+                borderRadius: 2,
+                boxShadow: 3,
+                height: 800,
                 display: "flex",
-                flexDirection: "column",
-                overflowY: "scroll",
+                flexDirection: "column-reverse",
+                overflowY: "auto",
               }}
             >
               {message ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    // justifyContent:
-                    //   message.receiver.name == localStorage.getItem("name")
-                    //     ? "flex-start"
-                    //     : "flex-end",
-                    marginBottom: 1,
-                  }}
-                >
-                  <List
-                    sx={{
-                      maxWidth: 360,
-                      maxWidth: "60%",
-                      // backgroundColor:
-                      //   message.receiver.name == localStorage.getItem("name")
-                      //     ? "#e0e0e0"
-                      //     : "#007bff",
-                      // color:
-                      //   message.receiver.name == localStorage.getItem("name")
-                      //     ? "black"
-                      //     : "white",
-                      padding: 1,
-                      borderRadius: 1,
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {message.map(() => (
-                      <ListItem alignItems="flex-start">
-                        <ListItemAvatar>
-                          <Avatar
-                            alt="Remy Sharp"
-                            src="/static/images/avatar/1.jpg"
-                          />
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary="Brunch this weekend?"
-                          secondary={
-                            <React.Fragment>
-                              <Typography
-                                sx={{ display: "inline" }}
-                                component="span"
-                                variant="body2"
-                                color="text.primary"
-                              >
-                                Ali Connors
-                              </Typography>
-                              {
-                                " — I'll be in your neighborhood doing errands this…"
-                              }
-                            </React.Fragment>
-                          }
-                        />
-                      </ListItem>
-                    ))}
+                <Box>
+                  <List>
+                    {message
+                      .slice()
+                      .reverse()
+                      .map((msg) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection:
+                              msg.sender.name === localStorage.getItem("name")
+                                ? "row-reverse"
+                                : "row",
+                            mb: 2,
+                            alignItems: "flex-end",
+                          }}
+                        >
+                          <ListItemAvatar>
+                            {msg.sender.name ===
+                            localStorage.getItem("name") ? (
+                              <Avatar
+                                sx={{ marginRight: 2 }}
+                                src={
+                                  `${msg.sender.avatar}`.includes("http")
+                                    ? msg.sender.avatar
+                                    : `http://localhost:5181/api/get/image/${msg.sender.avatar}`
+                                }
+                              />
+                            ) : (
+                              <Avatar
+                                sx={{ marginRight: 2 }}
+                                src={
+                                  `${msg.receiver.avatar}`.includes("http")
+                                    ? msg.receiver.avatar
+                                    : `http://localhost:5181/api/get/image/${msg.receiver.avatar}`
+                                }
+                              />
+                            )}
+                          </ListItemAvatar>
+                          <Paper
+                            sx={{
+                              p: 2,
+                              borderRadius: 2,
+                              bgcolor:
+                                msg.sender.name === localStorage.getItem("name")
+                                  ? "#007bff"
+                                  : "#e0e0e0",
+                              color:
+                                msg.sender.name === localStorage.getItem("name")
+                                  ? "#fff"
+                                  : "#000",
+                              wordWrap: "break-word",
+                            }}
+                          >
+                            <Typography variant="body1">{msg.text}</Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                display: "block",
+                                textAlign:
+                                  msg.sender.name ===
+                                  localStorage.getItem("name")
+                                    ? "right"
+                                    : "left",
+                                color: "#888",
+                                mt: 0.5,
+                              }}
+                            >
+                              {convertTimeString(msg.createdAt)}
+                            </Typography>
+                          </Paper>
+                        </Box>
+                      ))}
                   </List>
                 </Box>
               ) : (

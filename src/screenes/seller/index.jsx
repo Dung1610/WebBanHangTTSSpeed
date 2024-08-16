@@ -74,6 +74,7 @@ const Seller = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [open, setOpen] = useState(false);
+  const [ws, setWs] = useState(false);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -81,6 +82,7 @@ const Seller = () => {
   const [message, setMessage] = useState([]);
   const [reply, setReply] = useState("");
   const [code, setCode] = useState(0);
+  const [sender, setSender] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
   const [openM, setOpenM] = useState(false);
 
@@ -98,28 +100,55 @@ const Seller = () => {
     images: [],
   });
 
-  const handleSelectMessage = (code, index) => {
+  const handleSelectMessage = (code,sender, index) => {
     setCode(code);
     setSelectedChat(index);
-    messByCode();
-    const websocket = new WebSocket(
-      `ws://localhost:5181/ws/chat?boxchatCode=${code}`
-    );
-    websocket.onopen = () => console.log("WebSocket connected");
-    websocket.onerror = (error) => console.error("WebSocket error:", error);
-    websocket.onmessage = (event) => {
-      messByCode()
-      console.log(event.data.status)
+    myAxios
+      .get(`messages/get/${code}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(function (response) {
+        console.log(response.data)
+        setMessage(response.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    setSender(sender)
+
+    const socket = new WebSocket(`ws://localhost:5181/ws/chat/${code}`);
+    socket.onopen = function () {
+      console.log("WebSocket connection established");
+      setWs(socket);
     };
-    websocket.onclose = () => console.log("WebSocket disconnected");
-    return () => {
-      if (websocket) {
-        websocket.close();
-        console.log("WebSocket connection closed");
-      }
+
+    socket.onmessage = function (event) {
+      const data = JSON.parse(event.data).data;
+      setMessage(data)
+    };
+
+    socket.onclose = function () {
+      console.log("WebSocket connection closed");
+      setWs(null);
     };
   };
 
+  const getMess = () => {
+    myAxios
+      .get("boxchats/get", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(function (response) {
+        setListMessage(response.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -144,20 +173,7 @@ const Seller = () => {
       });
   };
 
-  const getMess = () => {
-    myAxios
-      .get("boxchats/get", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then(function (response) {
-        setListMessage(response.data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+  
 
   // thêm sản phẩm
   const handleChange = (e) => {
@@ -263,48 +279,17 @@ const Seller = () => {
     setMessage(null);
   };
 
-  const messByCode = () => {
-    myAxios
-      .get(`messages/get/${code}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then(function (response) {
-        setMessage(response.data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
-
   const handleReplyChange = (e) => setReply(e.target.value);
 
   const handleSendReply = () => {
-    if (reply == null && message[0].receiver.username == null) return;
-    myAxios
-      .post(
-        `messages/create`,
-        {
-          sender: message[0].receiver.username,
-          message: reply,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
-      .then(function (response) {
-        console.log(response);
-        if (response.status == 201) {
-          messByCode();
-          setReply("");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    if (reply == null) return;
+    const data = {
+      receiver: sender,
+      message: reply,
+      username: localStorage.getItem("user"),
+    };
+    console.log(data , code)
+    ws.send(JSON.stringify(data));
   };
 
   return (
@@ -325,17 +310,6 @@ const Seller = () => {
             onClick={handleOpen}
           >
             Thêm Sản Phẩm
-          </Button>
-          <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            soket
           </Button>
         </Box>
         <Box>
@@ -703,7 +677,7 @@ const Seller = () => {
                       },
                     }}
                     button
-                    onClick={() => handleSelectMessage(msg.code, index)}
+                    onClick={() => handleSelectMessage(msg.code,msg.sender.username, index)}
                   >
                     <ListItem alignItems="flex-start">
                       <ListItemAvatar>
@@ -776,7 +750,7 @@ const Seller = () => {
                           sx={{
                             display: "flex",
                             flexDirection:
-                              msg.sender.name === localStorage.getItem("name")
+                            msg.sender.username == localStorage.getItem("user")
                                 ? "row-reverse"
                                 : "row",
                             mb: 2,
@@ -784,8 +758,7 @@ const Seller = () => {
                           }}
                         >
                           <ListItemAvatar>
-                            {msg.sender.name ===
-                            localStorage.getItem("name") ? (
+                            {msg.sender.username == localStorage.getItem("user") ? (
                               <Avatar
                                 sx={{ marginRight: 2 }}
                                 src={
@@ -810,11 +783,11 @@ const Seller = () => {
                               p: 2,
                               borderRadius: 2,
                               bgcolor:
-                                msg.sender.name === localStorage.getItem("name")
+                              msg.sender.username == localStorage.getItem("user")
                                   ? "#007bff"
                                   : "#e0e0e0",
                               color:
-                                msg.sender.name === localStorage.getItem("name")
+                              msg.sender.username == localStorage.getItem("user")
                                   ? "#fff"
                                   : "#000",
                               wordWrap: "break-word",
@@ -826,8 +799,7 @@ const Seller = () => {
                               sx={{
                                 display: "block",
                                 textAlign:
-                                  msg.sender.name ===
-                                  localStorage.getItem("name")
+                                msg.sender.username == localStorage.getItem("user")
                                     ? "right"
                                     : "left",
                                 color: "#888",

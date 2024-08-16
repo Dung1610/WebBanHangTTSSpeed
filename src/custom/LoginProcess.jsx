@@ -6,12 +6,25 @@ const NoLogin = () => {
 
 const Login = () => {
   if (localStorage.getItem("token")) {
-    if(!localStorage.getItem("role")){
-    window.location.href = "/";
+    if (localStorage.getItem("role") == "quan-tri-vien") {
+      window.location.href = "/";
+    } else {
+      window.location.href = "/seller";
     }
-    window.location.href = "/seller";
   }
 };
+
+const CheckRoleInSeller = () => {
+  if(localStorage.getItem("role") == "quan-tri-vien") {
+    window.location.href = "/notfound";
+  }
+}
+
+const CheckRoleInAdmin = () => {
+  if(localStorage.getItem("role") == "nguoi-ban") {
+    window.location.href = "/notfound";
+  }
+}
 
 const CheckExpired = () => {
   fetch("http://localhost:5181/api/users/token", {
@@ -63,7 +76,7 @@ const RefreshToken = () => {
         window.location.href = "/login";
       }
       if (data.status === 200) {
-        if(data.data.roleCode == "nguoi-ban"){
+        if (data.data.roleCode == "nguoi-ban") {
           localStorage.setItem("role", data.data.roleCode);
         }
         localStorage.setItem("token", data.data.token);
@@ -83,4 +96,4 @@ const RefreshToken = () => {
       console.log(error);
     });
 };
-export { NoLogin, Login, CheckExpired };
+export { NoLogin, Login, CheckExpired , CheckRoleInSeller, CheckRoleInAdmin};

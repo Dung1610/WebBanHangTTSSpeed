@@ -40,6 +40,13 @@ import SendIcon from "@mui/icons-material/Send";
 import Stack from "@mui/material/Stack";
 import Badge from "@mui/material/Badge";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ReloadIcon from "@mui/icons-material/ReplayOutlined";
+import {
+  CheckExpired,
+  CheckRoleInSeller,
+  NoLogin,
+} from "../../custom/LoginProcess";
+import { Link } from "react-router-dom";
 
 const modalStyle = {
   position: "absolute",
@@ -73,9 +80,12 @@ function convertTimeString(timeString) {
 const Seller = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  CheckExpired();
+  NoLogin();
+  CheckRoleInSeller();
   const [open, setOpen] = useState(false);
-  const [ws, setWs] = useState(false);
 
+  const [ws, setWs] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [listMessage, setListMessage] = useState([]);
@@ -100,7 +110,7 @@ const Seller = () => {
     images: [],
   });
 
-  const handleSelectMessage = (code,sender, index) => {
+  const handleSelectMessage = (code, sender, index) => {
     setCode(code);
     setSelectedChat(index);
     myAxios
@@ -110,13 +120,13 @@ const Seller = () => {
         },
       })
       .then(function (response) {
-        console.log(response.data)
+        console.log(response.data);
         setMessage(response.data);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-    setSender(sender)
+    setSender(sender);
 
     const socket = new WebSocket(`ws://localhost:5181/ws/chat/${code}`);
     socket.onopen = function () {
@@ -126,7 +136,7 @@ const Seller = () => {
 
     socket.onmessage = function (event) {
       const data = JSON.parse(event.data).data;
-      setMessage(data)
+      setMessage(data);
     };
 
     socket.onclose = function () {
@@ -172,8 +182,6 @@ const Seller = () => {
         console.error("Error:", error);
       });
   };
-
-  
 
   // thêm sản phẩm
   const handleChange = (e) => {
@@ -271,13 +279,16 @@ const Seller = () => {
   // thêm sản phẩm
 
   // tin nhan
-
   const handleOpenM = () => setOpenM(true);
   const handleCloseM = () => {
     setReply(null);
     setOpenM(false);
     setMessage(null);
   };
+
+  const reload = () => {
+    getMess();
+  }
 
   const handleReplyChange = (e) => setReply(e.target.value);
 
@@ -288,7 +299,7 @@ const Seller = () => {
       message: reply,
       username: localStorage.getItem("user"),
     };
-    console.log(data , code)
+    console.log(data, code);
     ws.send(JSON.stringify(data));
   };
 
@@ -296,8 +307,7 @@ const Seller = () => {
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
+        <Header title="Shop Management" subtitle="Welcome to your management" />
         <Box>
           <Button
             sx={{
@@ -641,6 +651,9 @@ const Seller = () => {
         onClose={handleCloseM}
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
+        sx={{
+          marginTop: "50px",
+        }}
       >
         <Box
           sx={{
@@ -649,78 +662,112 @@ const Seller = () => {
             width: "80%",
             margin: "auto",
             backgroundColor: "background.paper",
+            border: "1px solid rgb(105 85 31)",
             boxShadow: 24,
             borderRadius: 1,
             overflow: "hidden",
           }}
         >
           {/* Danh Sách Tin Nhắn */}
-          <Box sx={{ width: 300, borderRight: 1, borderColor: "divider" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <Box sx={{ padding: 2, borderBottom: 1, borderColor: "divider" }}>
               <Typography variant="h6">Danh Sách Tin Nhắn</Typography>
             </Box>
-            <List>
-              {listMessage.map((msg, index) => (
-                <React.Fragment key={msg.code}>
-                  <List
-                    key={index}
-                    sx={{
-                      width: "100%",
-                      maxWidth: 360,
-                      bgcolor: "background.paper",
-                      borderRight: "1px solid #ddd",
-                      backgroundColor:
-                        selectedChat === index ? "#d1eaff" : "transparent",
-                      "&:hover": {
+            <Box
+              sx={{
+                width: 300,
+                borderRight: 1,
+                height: "100%",
+                borderColor: "divider",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <List>
+                {listMessage.map((msg, index) => (
+                  <React.Fragment key={msg.code}>
+                    <List
+                      key={index}
+                      sx={{
+                        width: "100%",
+                        maxWidth: 360,
+                        bgcolor: "background.paper",
+                        borderRight: "1px solid #ddd",
                         backgroundColor:
-                          selectedChat === index ? "#b0d1ff" : "#e0e0e0",
-                      },
-                    }}
-                    button
-                    onClick={() => handleSelectMessage(msg.code,msg.sender.username, index)}
-                  >
-                    <ListItem alignItems="flex-start">
-                      <ListItemAvatar>
-                        <Avatar
-                          sx={{ marginRight: 2 }}
-                          src={
-                            `${msg.sender.avatar}`.includes("http")
-                              ? msg.sender.avatar
-                              : `http://localhost:5181/api/get/image/${msg.sender.avatar}`
+                          selectedChat === index ? "#d1eaff" : "transparent",
+                        "&:hover": {
+                          backgroundColor:
+                            selectedChat === index ? "#b0d1ff" : "#e0e0e0",
+                        },
+                      }}
+                      button
+                      onClick={() =>
+                        handleSelectMessage(
+                          msg.code,
+                          msg.sender.username,
+                          index
+                        )
+                      }
+                    >
+                      <ListItem alignItems="flex-start">
+                        <ListItemAvatar>
+                          <Avatar
+                            sx={{ marginRight: 2 }}
+                            src={
+                              `${msg.sender.avatar}`.includes("http")
+                                ? msg.sender.avatar
+                                : `http://localhost:5181/api/get/image/${msg.sender.avatar}`
+                            }
+                          />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={msg.sender.name}
+                          secondary={
+                            <React.Fragment>
+                              {msg.countMessNotRead == 0 ? (
+                                <Typography
+                                  sx={{ display: "inline" }}
+                                  component="span"
+                                  variant="body2"
+                                  color="text.primary"
+                                >
+                                  {msg.lastMessage}
+                                </Typography>
+                              ) : (
+                                `${msg.lastMessage}`
+                              )}
+                            </React.Fragment>
                           }
                         />
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={msg.sender.name}
-                        secondary={
-                          <React.Fragment>
-                            {msg.countMessNotRead == 0 ? (
-                              <Typography
-                                sx={{ display: "inline" }}
-                                component="span"
-                                variant="body2"
-                                color="text.primary"
-                              >
-                                {msg.lastMessage}
-                              </Typography>
-                            ) : (
-                              `${msg.lastMessage}`
-                            )}
-                          </React.Fragment>
-                        }
-                      />
-                      {msg.countMessNotRead == 0 ? null : (
-                        <Badge
-                          badgeContent={msg.countMessNotRead}
-                          color="success"
-                        />
-                      )}
-                    </ListItem>
-                    <Divider variant="inset" component="li" />
-                  </List>
-                </React.Fragment>
-              ))}
-            </List>
+                        {msg.countMessNotRead == 0 ? null : (
+                          <Badge
+                            badgeContent={msg.countMessNotRead}
+                            color="success"
+                          />
+                        )}
+                      </ListItem>
+                      <Divider variant="inset" component="li" />
+                    </List>
+                  </React.Fragment>
+                ))}
+              </List>
+              <Button
+                component={Link}
+                onClick={reload}
+                variant="contained"
+                color="success"
+                sx={{ fontSize: "1rem" }}
+              >
+                <ReloadIcon sx={{ fontSize: "24px" }} />
+                Làm mới
+              </Button>
+            </Box>
           </Box>
 
           {/* Chi Tiết Tin Nhắn */}
@@ -733,7 +780,7 @@ const Seller = () => {
                 backgroundColor: "#fff",
                 borderRadius: 2,
                 boxShadow: 3,
-                height: 800,
+                height: "1000px !important",
                 display: "flex",
                 flexDirection: "column-reverse",
                 overflowY: "auto",
@@ -750,7 +797,8 @@ const Seller = () => {
                           sx={{
                             display: "flex",
                             flexDirection:
-                            msg.sender.username == localStorage.getItem("user")
+                              msg.sender.username ==
+                              localStorage.getItem("user")
                                 ? "row-reverse"
                                 : "row",
                             mb: 2,
@@ -758,7 +806,8 @@ const Seller = () => {
                           }}
                         >
                           <ListItemAvatar>
-                            {msg.sender.username == localStorage.getItem("user") ? (
+                            {msg.sender.username ==
+                            localStorage.getItem("user") ? (
                               <Avatar
                                 sx={{ marginRight: 2 }}
                                 src={
@@ -783,11 +832,13 @@ const Seller = () => {
                               p: 2,
                               borderRadius: 2,
                               bgcolor:
-                              msg.sender.username == localStorage.getItem("user")
+                                msg.sender.username ==
+                                localStorage.getItem("user")
                                   ? "#007bff"
                                   : "#e0e0e0",
                               color:
-                              msg.sender.username == localStorage.getItem("user")
+                                msg.sender.username ==
+                                localStorage.getItem("user")
                                   ? "#fff"
                                   : "#000",
                               wordWrap: "break-word",
@@ -799,7 +850,8 @@ const Seller = () => {
                               sx={{
                                 display: "block",
                                 textAlign:
-                                msg.sender.username == localStorage.getItem("user")
+                                  msg.sender.username ==
+                                  localStorage.getItem("user")
                                     ? "right"
                                     : "left",
                                 color: "#888",

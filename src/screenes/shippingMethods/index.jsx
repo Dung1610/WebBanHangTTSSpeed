@@ -3,7 +3,7 @@ import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { NoLogin } from "../../custom/LoginProcess";
+import { CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
 import CustomPagination from "../../custom/CustomPagination";
 import { useEffect, useState } from "react";
 import { CheckExpired } from "../../custom/LoginProcess";
@@ -99,6 +99,7 @@ const MapClickHandler = ({ onClick }) => {
 const ShippingMethods = () => {
   CheckExpired();
   NoLogin();
+  CheckRoleInAdmin()
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [shippingMethods, setShippingMethods] = useState([]);

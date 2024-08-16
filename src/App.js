@@ -13,21 +13,51 @@ import ShippingMethods from "./screenes/shippingMethods";
 import ListBill from "./screenes/listBill";
 import Panner from "./screenes/panner";
 import Seller from "./screenes/seller";
+import Page404 from "./screenes/404";
 
 function App() {
   const [theme, colorMode] = useMode();
+  let sidebar;
+  let page404;
+  const getQueryParams = window.location.href.split("/")[3];
+
+  if (
+    getQueryParams != "dashboard" &&
+    getQueryParams != "seller" &&
+    getQueryParams != "userTable" &&
+    getQueryParams != "categoryTable" &&
+    getQueryParams != "product" &&
+    getQueryParams != "logList" &&
+    getQueryParams != "panner" &&
+    getQueryParams != "shippingMethods" &&
+    getQueryParams != "listBill" &&
+    getQueryParams != "login"
+  ) {
+    sidebar = <></>;
+    page404 = (
+      <Routes>
+        <Route path="*" element={<Page404 />} />
+      </Routes>
+    );
+  } else {
+    sidebar = <Sidebarr />;
+    page404 = <></>;
+  }
+
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-          <Sidebarr />
+          {sidebar}
           <main className="content">
             <Topbar />
+            {page404}
             <Routes>
-            <Route path="/seller" element={<Seller />} />
-              <Route path="/" element={<UserTable />} />
-              <Route path="/categoryTable" element={<CategoryTable />}/>
+              <Route path="/seller" element={<Seller />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/userTable" element={<UserTable />} />
+              <Route path="/categoryTable" element={<CategoryTable />} />
               <Route path="/product/:id" element={<ProductCategory />} />
               <Route path="/logList" element={<LogList />} />
               <Route path="/listBill" element={<ListBill />} />

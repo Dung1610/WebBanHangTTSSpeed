@@ -1,4 +1,20 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Modal,
+  Typography,
+  useTheme,
+  Paper,
+  TextField,
+} from "@mui/material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
@@ -12,20 +28,133 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
-import { CheckExpired, NoLogin } from "../../custom/LoginProcess";
+import SendIcon from "@mui/icons-material/Send";
+import CloseIcon from "@mui/icons-material/Close";
+import ReloadIcon from "@mui/icons-material/ReplayOutlined";
+import {
+  CheckExpired,
+  CheckRoleInAdmin,
+  NoLogin,
+} from "../../custom/LoginProcess";
+import React, { useEffect, useState } from "react";
+import { myAxios } from "../../Services/axios";
+import { Link } from "react-router-dom";
+
+function convertTimeString(timeString) {
+  const [date, time, period] = timeString.split(" ");
+  const [day, month, year] = date.split("/");
+  const [hours, minutes, seconds] = time.split(":");
+
+  let hour24 = parseInt(hours, 10);
+  if (period === "CH" && hour24 !== 12) {
+    hour24 += 12;
+  } else if (period === "SA" && hour24 === 12) {
+    hour24 = 0;
+  }
+
+  const dateTime = new Date(year, month - 1, day, hour24, minutes, seconds);
+
+  return dateTime.toLocaleTimeString();
+}
 
 const Dashboard = () => {
-  CheckExpired()
-  NoLogin()
+  CheckExpired();
+  NoLogin();
+  CheckRoleInAdmin();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const [ws, setWs] = useState(false);
+  const [listMessage, setListMessage] = useState([]);
+  const [message, setMessage] = useState([]);
+  const [reply, setReply] = useState("");
+  const [code, setCode] = useState(0);
+  const [sender, setSender] = useState("");
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [openM, setOpenM] = useState(false);
+
+  const handleSelectMessage = (code, sender, index) => {
+    setCode(code);
+    setSelectedChat(index);
+    myAxios
+      .get(`messages/get/${code}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(function (response) {
+        console.log(response.data);
+        setMessage(response.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    setSender(sender);
+
+    const socket = new WebSocket(`ws://localhost:5181/ws/chat/${code}`);
+    socket.onopen = function () {
+      console.log("WebSocket connection established");
+      setWs(socket);
+    };
+
+    socket.onmessage = function (event) {
+      const data = JSON.parse(event.data).data;
+      setMessage(data);
+    };
+
+    socket.onclose = function () {
+      console.log("WebSocket connection closed");
+      setWs(null);
+    };
+  };
+
+  const getMess = () => {
+    myAxios
+      .get("boxchats/get", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(function (response) {
+        setListMessage(response.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+  
+  const reload = () => {
+    getMess();
+  }
+  useEffect(() => {
+    getMess();
+  }, []);
+
+  // tin nhan
+  const handleOpenM = () => setOpenM(true);
+  const handleCloseM = () => {
+    setReply(null);
+    setOpenM(false);
+    setMessage(null);
+  };
+
+  const handleReplyChange = (e) => setReply(e.target.value);
+  const handleSendReply = () => {
+    if (reply == null) return;
+    const data = {
+      receiver: sender,
+      message: reply,
+      username: localStorage.getItem("user"),
+    };
+    console.log(data, code);
+    ws.send(JSON.stringify(data));
+  };
 
   return (
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
+        <Header title="Shop Management" subtitle="Welcome to your management" />
         <Box>
           <Button
             sx={{
@@ -35,9 +164,9 @@ const Dashboard = () => {
               fontWeight: "bold",
               padding: "10px 20px",
             }}
+            onClick={handleOpenM}
           >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
+            Chat
           </Button>
         </Box>
       </Box>
@@ -280,6 +409,266 @@ const Dashboard = () => {
           </Box>
         </Box>
       </Box>
+
+      {/* tin nhan */}
+      <Modal
+        open={openM}
+        onClose={handleCloseM}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+        sx={{
+          marginTop: "50px",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            height: "80%",
+            width: "80%",
+            border: "1px solid rgb(105 85 31)",
+            margin: "auto",
+            backgroundColor: "background.paper",
+            boxShadow: 24,
+            borderRadius: 1,
+            overflow: "hidden",
+          }}
+        >
+          {/* Danh Sách Tin Nhắn */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Box sx={{ padding: 2, borderBottom: 1, borderColor: "divider" }}>
+              <Typography variant="h6">Danh Sách Tin Nhắn</Typography>
+            </Box>
+            <Box
+              sx={{
+                width: 300,
+                borderRight: 1,
+                height: "100%",
+                borderColor: "divider",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <List>
+                {listMessage.map((msg, index) => (
+                  <React.Fragment key={msg.code}>
+                    <List
+                      key={index}
+                      sx={{
+                        width: "100%",
+                        maxWidth: 360,
+                        bgcolor: "background.paper",
+                        borderRight: "1px solid #ddd",
+                        backgroundColor:
+                          selectedChat === index ? "#d1eaff" : "transparent",
+                        "&:hover": {
+                          backgroundColor:
+                            selectedChat === index ? "#b0d1ff" : "#e0e0e0",
+                        },
+                      }}
+                      button
+                      onClick={() =>
+                        handleSelectMessage(
+                          msg.code,
+                          msg.sender.username,
+                          index
+                        )
+                      }
+                    >
+                      <ListItem alignItems="flex-start">
+                        <ListItemAvatar>
+                          <Avatar
+                            sx={{ marginRight: 2 }}
+                            src={
+                              `${msg.sender.avatar}`.includes("http")
+                                ? msg.sender.avatar
+                                : `http://localhost:5181/api/get/image/${msg.sender.avatar}`
+                            }
+                          />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={msg.sender.name}
+                          secondary={
+                            <React.Fragment>
+                              {msg.countMessNotRead == 0 ? (
+                                <Typography
+                                  sx={{ display: "inline" }}
+                                  component="span"
+                                  variant="body2"
+                                  color="text.primary"
+                                >
+                                  {msg.lastMessage}
+                                </Typography>
+                              ) : (
+                                `${msg.lastMessage}`
+                              )}
+                            </React.Fragment>
+                          }
+                        />
+                        {msg.countMessNotRead == 0 ? null : (
+                          <Badge
+                            badgeContent={msg.countMessNotRead}
+                            color="success"
+                          />
+                        )}
+                      </ListItem>
+                      <Divider variant="inset" component="li" />
+                    </List>
+                  </React.Fragment>
+                ))}
+              </List>
+              <Button
+                component={Link}
+                onClick={reload}
+                variant="contained"
+                color="success"
+                sx={{ fontSize: "1rem" }}
+              >
+                <ReloadIcon sx={{ fontSize: "24px" }} />
+                Làm mới
+              </Button>
+            </Box>
+          </Box>
+
+          {/* Chi Tiết Tin Nhắn */}
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <Box
+              sx={{
+                width: "100%",
+                margin: "20px auto",
+                padding: 2,
+                backgroundColor: "#fff",
+                borderRadius: 2,
+                boxShadow: 3,
+                height: 800,
+                display: "flex",
+                flexDirection: "column-reverse",
+                overflowY: "auto",
+              }}
+            >
+              {message ? (
+                <Box>
+                  <List>
+                    {message
+                      .slice()
+                      .reverse()
+                      .map((msg) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection:
+                              msg.sender.username ==
+                              localStorage.getItem("user")
+                                ? "row-reverse"
+                                : "row",
+                            mb: 2,
+                            alignItems: "flex-end",
+                          }}
+                        >
+                          <ListItemAvatar>
+                            {msg.sender.username ==
+                            localStorage.getItem("user") ? (
+                              <Avatar
+                                sx={{ marginRight: 2 }}
+                                src={
+                                  `${msg.sender.avatar}`.includes("http")
+                                    ? msg.sender.avatar
+                                    : `http://localhost:5181/api/get/image/${msg.sender.avatar}`
+                                }
+                              />
+                            ) : (
+                              <Avatar
+                                sx={{ marginRight: 2 }}
+                                src={
+                                  `${msg.receiver.avatar}`.includes("http")
+                                    ? msg.receiver.avatar
+                                    : `http://localhost:5181/api/get/image/${msg.receiver.avatar}`
+                                }
+                              />
+                            )}
+                          </ListItemAvatar>
+                          <Paper
+                            sx={{
+                              p: 2,
+                              borderRadius: 2,
+                              bgcolor:
+                                msg.sender.username ==
+                                localStorage.getItem("user")
+                                  ? "#007bff"
+                                  : "#e0e0e0",
+                              color:
+                                msg.sender.username ==
+                                localStorage.getItem("user")
+                                  ? "#fff"
+                                  : "#000",
+                              wordWrap: "break-word",
+                            }}
+                          >
+                            <Typography variant="body1">{msg.text}</Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                display: "block",
+                                textAlign:
+                                  msg.sender.username ==
+                                  localStorage.getItem("user")
+                                    ? "right"
+                                    : "left",
+                                color: "#888",
+                                mt: 0.5,
+                              }}
+                            >
+                              {convertTimeString(msg.createdAt)}
+                            </Typography>
+                          </Paper>
+                        </Box>
+                      ))}
+                  </List>
+                </Box>
+              ) : (
+                <Typography variant="h6">
+                  Chọn một tin nhắn để xem chi tiết.
+                </Typography>
+              )}
+            </Box>
+            <Box
+              sx={{
+                padding: 2,
+                borderTop: 1,
+                borderColor: "divider",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Nhập tin nhắn..."
+                value={reply}
+                onChange={handleReplyChange}
+                sx={{ marginRight: 1 }}
+              />
+              <IconButton color="primary" onClick={handleSendReply}>
+                <SendIcon />
+              </IconButton>
+            </Box>
+          </Box>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleCloseM}
+            aria-label="close"
+            sx={{ position: "absolute", right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      </Modal>
     </Box>
   );
 };

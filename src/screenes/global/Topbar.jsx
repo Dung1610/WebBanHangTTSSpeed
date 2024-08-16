@@ -31,6 +31,7 @@ const Topbar = ({}) => {
     localStorage.removeItem("user");
     localStorage.removeItem("role");
     localStorage.removeItem("name");
+    localStorage.removeItem("refreshToken");
     window.location.href = "/login";
   };
 

@@ -8,7 +8,7 @@ import {
 import * as React from "react";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { NoLogin } from "../../custom/LoginProcess";
+import { CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
 import { useEffect, useState } from "react";
 import { CheckExpired } from "../../custom/LoginProcess";
 import { myAxios } from "../../Services/axios";
@@ -23,6 +23,7 @@ import Stack from '@mui/material/Stack';
 const Panner = () => {
   CheckExpired();
   NoLogin();
+  CheckRoleInAdmin();
   const [banner, setBanner] = useState([]);
   const [fetchTrigger, setFetchTrigger] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

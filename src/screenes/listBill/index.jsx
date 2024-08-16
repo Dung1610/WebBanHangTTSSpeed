@@ -13,7 +13,7 @@ import {
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { NoLogin } from "../../custom/LoginProcess";
+import { CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
 import { useEffect, useState } from "react";
 import { CheckExpired } from "../../custom/LoginProcess";
 import * as React from "react";
@@ -31,6 +31,7 @@ import List from "@mui/material/List";
 const ListBill = () => {
   CheckExpired();
   NoLogin();
+  CheckRoleInAdmin();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isLoading, setIsLoading] = useState(true);

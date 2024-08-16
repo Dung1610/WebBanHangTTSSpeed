@@ -2,7 +2,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { CheckExpired, NoLogin } from "../../custom/LoginProcess";
+import { CheckExpired, CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
 import { render } from "@testing-library/react";
 import * as React from "react";
 import Button from "@mui/material/Button";
@@ -22,6 +22,7 @@ import { myAxios } from "../../Services/axios";
 const ProductCategory = () => {
   CheckExpired();
   NoLogin();
+  CheckRoleInAdmin();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [anchor, setAnchor] = useState(null);

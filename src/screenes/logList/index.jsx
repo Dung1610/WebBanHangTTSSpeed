@@ -12,7 +12,7 @@ import {
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { NoLogin } from "../../custom/LoginProcess";
+import { CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
 import CustomPagination from "../../custom/CustomPagination";
 import { useEffect, useState } from "react";
 import { CheckExpired } from "../../custom/LoginProcess";
@@ -23,6 +23,7 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 const LogList = () => {
   CheckExpired();
   NoLogin();
+  CheckRoleInAdmin();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [role, setRole] = useState();

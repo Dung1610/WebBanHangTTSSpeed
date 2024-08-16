@@ -1,5 +1,5 @@
 import { useTheme } from "@emotion/react";
-import { CheckExpired, NoLogin } from "../../custom/LoginProcess";
+import { CheckExpired, CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
 import { tokens } from "../../theme";
 import { useEffect, useState } from "react";
 import Header from "../../components/Header";
@@ -20,6 +20,7 @@ const styles = {
 const CategoryTable = () => {
   CheckExpired();
   NoLogin();
+  CheckRoleInAdmin();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 

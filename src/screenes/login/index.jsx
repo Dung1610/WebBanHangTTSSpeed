@@ -21,7 +21,10 @@ const initialValues = {
 };
 
 const checkoutSchema = yup.object().shape({
-  email: yup.string().email("Email Không Đúng Định Dạng").required("Email Không Được Để Trống"),
+  email: yup
+    .string()
+    .email("Email Không Đúng Định Dạng")
+    .required("Email Không Được Để Trống"),
   password: yup.string().required("Mật Khẩu Không Được Để Trống"),
 });
 
@@ -60,47 +63,46 @@ const Login = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.status == 200) {
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("role", data.data.roleCode);
+          localStorage.setItem("image", data.data.user.avatar);
+          localStorage.setItem("refreshToken", data.data.user.refreshToken);
+          if (data.data.user.email != null) {
+            localStorage.setItem("user", data.data.user.email);
+          } else {
+            localStorage.setItem("user", data.data.user.phone);
+          }
+
           if (data.data.roleCode == "quan-tri-vien") {
-            localStorage.setItem("token", data.data.token);
-            localStorage.setItem("refreshToken", data.data.user.refreshToken);
-            if (data.data.user.email != null) {
-              localStorage.setItem("user", data.data.user.email);
-            } else {
-              localStorage.setItem("user", data.data.user.phone);
-            }
+
             if (data.data.user.name != null) {
               localStorage.setItem("name", data.data.user.name);
             } else {
               localStorage.setItem("name", "Admin");
             }
             window.location.href = "/";
-          }else if(data.data.roleCode == "nguoi-ban"){
-            localStorage.setItem("token", data.data.token);
-            localStorage.setItem("role", data.data.roleCode);
-            localStorage.setItem("refreshToken", data.data.user.refreshToken);
-            if (data.data.user.email != null) {
-              localStorage.setItem("user", data.data.user.email);
-            } else {
-              localStorage.setItem("user", data.data.user.phone);
-            }
+
+          } else if (data.data.roleCode == "nguoi-ban") {
+
             if (data.data.user.name != null) {
               localStorage.setItem("name", data.data.user.name);
             } else {
-              localStorage.setItem("name", "Admin");
+              localStorage.setItem("name", "Shop");
             }
             window.location.href = "/seller";
-          }else {
-            setThongBao("Bạn không có quyền truy cập trang này!")
+
+          } else {
+            setThongBao("Bạn không có quyền truy cập trang này!");
           }
-          setThongBao(null)
+          setThongBao(null);
           setIsLoading(false);
         } else {
           setIsLoading(false);
-          setThongBao("Tài Khoản Hoặc Mật Khẩu Không Chính Xác!")
+          setThongBao("Tài Khoản Hoặc Mật Khẩu Không Chính Xác!");
         }
       })
       .catch((error) => {
-        setThongBao("Lỗi sever!!!!")
+        setThongBao("Lỗi sever!!!!");
         setIsLoading(false);
       });
   };
@@ -108,8 +110,8 @@ const Login = () => {
   return (
     <Box m="20px" textAlign="center">
       <Header
-        title="LOGIN [ FOR ADIM ]"
-        subtitle="This is page for admin of speed ecommerce"
+        title="LOGIN SPEED"
+        subtitle="This is page for speed ecommerce"
         variant="h1"
       />
       <Formik

@@ -91,7 +91,7 @@ const Dashboard = () => {
       });
     setSender(sender);
 
-    const socket = new WebSocket(`ws://localhost:5181/ws/chat/${code}`);
+    const socket = new WebSocket(`ws://192.168.1.13:3333/ws/chat/${code}`);
     socket.onopen = function () {
       console.log("WebSocket connection established");
       setWs(socket);
@@ -147,6 +147,7 @@ const Dashboard = () => {
       username: localStorage.getItem("user"),
     };
     console.log(data, code);
+    setReply("")
     ws.send(JSON.stringify(data));
   };
 
@@ -585,9 +586,9 @@ const Dashboard = () => {
                               <Avatar
                                 sx={{ marginRight: 2 }}
                                 src={
-                                  `${msg.receiver.avatar}`.includes("http")
-                                    ? msg.receiver.avatar
-                                    : `http://localhost:5181/api/get/image/${msg.receiver.avatar}`
+                                  `${msg.sender.avatar}`.includes("http")
+                                    ? msg.sender.avatar
+                                    : `http://localhost:5181/api/get/image/${msg.sender.avatar}`
                                 }
                               />
                             )}
@@ -658,15 +659,6 @@ const Dashboard = () => {
               </IconButton>
             </Box>
           </Box>
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={handleCloseM}
-            aria-label="close"
-            sx={{ position: "absolute", right: 8, top: 8 }}
-          >
-            <CloseIcon />
-          </IconButton>
         </Box>
       </Modal>
     </Box>

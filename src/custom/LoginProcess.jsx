@@ -7,7 +7,7 @@ const NoLogin = () => {
 const Login = () => {
   if (localStorage.getItem("token")) {
     if (localStorage.getItem("role") == "quan-tri-vien") {
-      window.location.href = "/";
+      window.location.href = "/dashboard";
     } else {
       window.location.href = "/seller";
     }

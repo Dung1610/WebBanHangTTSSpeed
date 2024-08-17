@@ -6,8 +6,6 @@ import {
   IconButton,
   Typography,
   Grid,
-  CircularProgress,
-  Snackbar,
   Select,
   MenuItem,
   InputLabel,
@@ -21,7 +19,6 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { tokens } from "../../theme";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -29,7 +26,6 @@ import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../components/Header";
 import StatBox from "../../components/StatBox";
 import React, { useState, useRef, useEffect } from "react";
-import { teal, grey, blue } from "@mui/material/colors";
 import { useTheme } from "@emotion/react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -37,10 +33,11 @@ import { myAxios } from "../../Services/axios";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import SendIcon from "@mui/icons-material/Send";
-import Stack from "@mui/material/Stack";
 import Badge from "@mui/material/Badge";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ReloadIcon from "@mui/icons-material/ReplayOutlined";
+import Popover from "@mui/material/Popover";
+import { DataGrid } from "@mui/x-data-grid";
 import {
   CheckExpired,
   CheckRoleInSeller,
@@ -84,32 +81,150 @@ const Seller = () => {
   NoLogin();
   CheckRoleInSeller();
   const [open, setOpen] = useState(false);
+  const [openM, setOpenM] = useState(false);
 
   const [ws, setWs] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = () => {
+    getCategory();
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setProduct({
+      name: "",
+      description: "",
+      shippingUnit: "",
+      price: 0,
+      saleOff: 0,
+      auth: "",
+      categoryCode: "",
+      classiFies: [
+        {
+          groupName: "",
+          name: "",
+          image: null,
+          quantity: 0,
+          increasePercent: 0,
+        },
+      ],
+      images: [],
+    });
+  };
   const [listMessage, setListMessage] = useState([]);
   const [message, setMessage] = useState([]);
   const [reply, setReply] = useState("");
   const [code, setCode] = useState(0);
   const [sender, setSender] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
-  const [openM, setOpenM] = useState(false);
-
   const [product, setProduct] = useState({
     name: "",
     description: "",
-    shippingUnit: "",
+    shippingUnit: "Chưa Có",
     price: 0,
     saleOff: 0,
-    auth: "",
+    auth: localStorage.getItem("user"),
     categoryCode: "",
     classiFies: [
       { groupName: "", name: "", image: null, quantity: 0, increasePercent: 0 },
     ],
     images: [],
   });
+  const [anchor, setAnchor] = useState(null);
+  const [productBySell, setProductBySell] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchTrigger, setFetchTrigger] = useState(false);
+  const handleRefresh = () => {
+    setFetchTrigger((prev) => !prev);
+  };
 
+  // lay danh sach san pham theo nguoi ban
+  const openPopover = (event) => {
+    setAnchor(event.currentTarget);
+  };
+  const columns = [
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      sortable: false,
+    },
+    {
+      field: "description",
+      headerName: "Miêu Tả",
+      sortable: false,
+      flex: 1,
+    },
+    {
+      field: "price",
+      headerName: "Giá",
+      flex: 1,
+    },
+    {
+      field: "priceSaleOff",
+      headerName: "Giảm Giá ",
+      flex: 1,
+    },
+    {
+      field: "quantitySelled",
+      headerName: "Số Lượng Đã Bán",
+      flex: 1,
+    },
+    {
+      field: "likes",
+      headerName: "Lượt Thích",
+      flex: 1,
+    },
+    {
+      field: "classifies",
+      headerName: "Phân Loại",
+      sortable: false,
+      flex: 1,
+      renderCell: ({ row: { classifies } }) => {
+        return (
+          <>
+            <Button
+              variant="contained"
+              onClick={openPopover}
+              sx={{ width: "100%" }}
+            >
+              Xem Phân Loại
+            </Button>
+            <Popover
+              open={Boolean(anchor)}
+              anchorEl={anchor}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                horizontal: "right",
+              }}
+              onClose={() => setAnchor(null)}
+            >
+              <List
+                sx={{
+                  width: "100%",
+                  maxWidth: 360,
+                  bgcolor: "background.paper",
+                }}
+              >
+                {classifies.map((i) => (
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar src={i.image} />
+                    </ListItemAvatar>
+                    <ListItemText primary={i.name} secondary={i.quantity} />
+                  </ListItem>
+                ))}
+              </List>
+            </Popover>
+          </>
+        );
+      },
+    },
+  ];
+
+  // Nhan tin
   const handleSelectMessage = (code, sender, index) => {
     setCode(code);
     setSelectedChat(index);
@@ -120,7 +235,6 @@ const Seller = () => {
         },
       })
       .then(function (response) {
-        console.log(response.data);
         setMessage(response.data);
       })
       .catch((error) => {
@@ -128,7 +242,7 @@ const Seller = () => {
       });
     setSender(sender);
 
-    const socket = new WebSocket(`ws://localhost:5181/ws/chat/${code}`);
+    const socket = new WebSocket(`ws://192.168.1.13:3333/ws/chat/${code}`);
     socket.onopen = function () {
       console.log("WebSocket connection established");
       setWs(socket);
@@ -160,14 +274,25 @@ const Seller = () => {
       });
   };
 
-  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
-
   useEffect(() => {
-    getCategory();
-    getMess();
-  }, []);
-
+    getSanPhamNguoiBan();
+  }, [fetchTrigger]);
+  const getSanPhamNguoiBan = () => {
+    myAxios
+      .post("products/shop", "", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(function (response) {
+        setProductBySell(response.data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
   const getCategory = () => {
     myAxios
       .get("categories/true", {
@@ -207,13 +332,12 @@ const Seller = () => {
         },
       })
       .then((reponse) => {
-        newClassiFies[index].image = reponse.data;
+        newClassiFies[index].image = reponse.data[0];
+        setProduct({ ...product, classiFies: newClassiFies });
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-    setProduct({ ...product, classiFies: newClassiFies });
-    console.log(product);
   };
 
   const addClassiFie = () => {
@@ -239,47 +363,57 @@ const Seller = () => {
     });
   };
 
-  const handleImageChange = (index, event) => {
-    const newImages = [...product.images];
-    newImages[index] = event.target.files[0];
-    setProduct({ ...product, images: newImages });
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append("files", file);
+    }
+    myAxios
+      .post("uploads", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "content-type": "multipart/form-data",
+        },
+      })
+      .then((reponse) => {
+        setProduct((prev) => ({
+          ...prev,
+          images: reponse.data,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   const handleSubmit = async (e) => {
+    setIsLoading(true)
     e.preventDefault();
-
-    // Create FormData to handle file uploads
-    const formData = new FormData();
-    for (const [key, value] of Object.entries(product)) {
-      if (key === "images") {
-        value.forEach((file, index) => {
-          formData.append(`images[${index}]`, file);
-        });
-      } else if (key === "classiFies") {
-        value.forEach((classiFie, index) => {
-          formData.append(
-            `classiFies[${index}].groupName`,
-            classiFie.groupName
-          );
-          formData.append(`classiFies[${index}].name`, classiFie.name);
-          formData.append(`classiFies[${index}].quantity`, classiFie.quantity);
-          formData.append(
-            `classiFies[${index}].increasePercent`,
-            classiFie.increasePercent
-          );
-          if (classiFie.image) {
-            formData.append(`classiFies[${index}].image`, classiFie.image);
-          }
-        });
-      } else {
-        formData.append(key, JSON.stringify(value));
-      }
-    }
+    console.log(product)
+    await myAxios
+      .post("products",product,{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(function (response) {
+        handleRefresh()
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        console.error("Error:", error);
+      });
+      setIsLoading(false)
+      handleClose()
   };
   // thêm sản phẩm
 
   // tin nhan
-  const handleOpenM = () => setOpenM(true);
+  const handleOpenM = () => {
+    getMess();
+    setOpenM(true);
+  };
   const handleCloseM = () => {
     setReply(null);
     setOpenM(false);
@@ -288,7 +422,7 @@ const Seller = () => {
 
   const reload = () => {
     getMess();
-  }
+  };
 
   const handleReplyChange = (e) => setReply(e.target.value);
 
@@ -337,91 +471,41 @@ const Seller = () => {
           </Button>
         </Box>
       </Box>
-
-      {/* GRID & CHARTS */}
       <Box
-        display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
-        gridAutoRows="140px"
-        gap="20px"
+        m="40px 0 0 0"
+        height="60vh"
+        sx={{
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.blueAccent[700],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.primary[400],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            borderTop: "none",
+            backgroundColor: colors.blueAccent[700],
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+        }}
       >
-        {/* ROW 1 */}
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
-            progress="0.75"
-            increase="+14%"
-            icon={
-              <EmailIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
-            progress="0.50"
-            increase="+21%"
-            icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="32,441"
-            subtitle="New Clients"
-            progress="0.30"
-            increase="+5%"
-            icon={
-              <PersonAddIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
-            progress="0.80"
-            increase="+43%"
-            icon={
-              <TrafficIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
+        <DataGrid
+          loading={isLoading}
+          getRowId={() => crypto.randomUUID()}
+          rows={productBySell}
+          columns={columns}
+        />
       </Box>
       {/* modal */}
 
@@ -479,7 +563,7 @@ const Seller = () => {
                     required
                   >
                     {categories.map((category) => (
-                      <MenuItem key={category.id} value={category.id}>
+                      <MenuItem key={category.id} value={category.code}>
                         {category.name}
                       </MenuItem>
                     ))}
@@ -510,7 +594,7 @@ const Seller = () => {
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="subtitle1">Danh Sách Phân Loại</Typography>
-                <Box style={{ maxHeight: "25vh", overflow: "auto" }}>
+                <Box style={{ maxHeight: "22vh", overflow: "auto" }}>
                   {product.classiFies.map((classiFie, index) => (
                     <Box
                       key={index}
@@ -553,9 +637,6 @@ const Seller = () => {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                           <Button variant="contained" component="label">
-                            {classiFie.image
-                              ? classiFie.image
-                              : "Chọn Hình Ảnh"}
                             <input
                               type="file"
                               accept="image/*"
@@ -564,6 +645,19 @@ const Seller = () => {
                                 handleClassiFiesImageChange(index, e)
                               }
                             />
+                            {classiFie.image ? (
+                              <img
+                                src={
+                                  `${classiFie.image}`.includes("http")
+                                    ? classiFie.image
+                                    : `http://localhost:5181/api/get/image/${classiFie.image}`
+                                }
+                                alt={classiFie.image}
+                                style={{ width: 100, height: 100 }}
+                              />
+                            ) : (
+                              "Chọn Hình Ảnh"
+                            )}
                           </Button>
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -576,22 +670,6 @@ const Seller = () => {
                               handleClassiFiesChange(
                                 index,
                                 "quantity",
-                                e.target.value
-                              )
-                            }
-                            required
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="Tỷ Lệ Tăng"
-                            type="number"
-                            value={classiFie.increasePercent}
-                            onChange={(e) =>
-                              handleClassiFiesChange(
-                                index,
-                                "increasePercent",
                                 e.target.value
                               )
                             }
@@ -620,7 +698,7 @@ const Seller = () => {
                 </Button>
               </Grid>
               <Grid item xs={12}>
-                <Typography variant="subtitle1">Hình Ảnh Sản Phẩm</Typography>
+                <Typography variant="h6">Ảnh sản phẩm</Typography>
                 <Button
                   component="label"
                   variant="contained"
@@ -628,12 +706,33 @@ const Seller = () => {
                   startIcon={<CloudUploadIcon />}
                   m="10px"
                 >
+                  Upload Ảnh Sản Phẩm
                   <VisuallyHiddenInput
                     type="file"
+                    accept="image/*"
                     multiple
                     onChange={handleImageChange}
                   />
                 </Button>
+                <Box style={{ maxHeight: "15vh", overflow: "auto" }}>
+                  {product.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={
+                        `${image}`.includes("http")
+                          ? image
+                          : `http://localhost:5181/api/get/image/${image}`
+                      }
+                      alt={`Product Preview ${index + 1}`}
+                      style={{
+                        width: 100,
+                        height: 100,
+                        marginRight: 10,
+                        marginBottom: 10,
+                      }}
+                    />
+                  ))}
+                </Box>
               </Grid>
               <Grid item xs={12} textAlign="right">
                 <Button variant="contained" type="submit">
@@ -893,15 +992,6 @@ const Seller = () => {
               </IconButton>
             </Box>
           </Box>
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={handleCloseM}
-            aria-label="close"
-            sx={{ position: "absolute", right: 8, top: 8 }}
-          >
-            <CloseIcon />
-          </IconButton>
         </Box>
       </Modal>
     </Box>

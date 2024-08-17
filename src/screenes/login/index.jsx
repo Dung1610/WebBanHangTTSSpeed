@@ -80,7 +80,7 @@ const Login = () => {
             } else {
               localStorage.setItem("name", "Admin");
             }
-            window.location.href = "/";
+            window.location.href = "/dashboard";
 
           } else if (data.data.roleCode == "nguoi-ban") {
 

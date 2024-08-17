@@ -3,7 +3,6 @@ import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { CheckExpired, CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
-import { render } from "@testing-library/react";
 import * as React from "react";
 import Button from "@mui/material/Button";
 import Popover from "@mui/material/Popover";
@@ -12,9 +11,6 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
-import ImageIcon from "@mui/icons-material/Image";
-import WorkIcon from "@mui/icons-material/Work";
-import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { myAxios } from "../../Services/axios";
@@ -100,6 +96,9 @@ const ProductCategory = () => {
       sortable: false,
       flex: 1,
       renderCell: ({ row: { classifies } }) => {
+        classifies.map((i)=>{
+          console.log(i.name)
+        })
         return (
           <>
             <Button

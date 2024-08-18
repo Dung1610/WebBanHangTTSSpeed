@@ -242,7 +242,7 @@ const Seller = () => {
       });
     setSender(sender);
 
-    const socket = new WebSocket(`ws://192.168.1.13:3333/ws/chat/${code}`);
+    const socket = new WebSocket(`ws://192.168.1.13:8000/ws/chat/${code}`);
     socket.onopen = function () {
       console.log("WebSocket connection established");
       setWs(socket);
@@ -398,14 +398,14 @@ const Seller = () => {
         },
       })
       .then(function (response) {
+        handleClose()
         handleRefresh()
+        setIsLoading(false)
       })
       .catch((error) => {
         setIsLoading(false);
         console.error("Error:", error);
       });
-      setIsLoading(false)
-      handleClose()
   };
   // thêm sản phẩm
 
@@ -473,7 +473,7 @@ const Seller = () => {
       </Box>
       <Box
         m="40px 0 0 0"
-        height="60vh"
+        height="75vh"
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",

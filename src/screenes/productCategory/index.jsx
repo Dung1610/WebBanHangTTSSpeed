@@ -2,7 +2,11 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { CheckExpired, CheckRoleInAdmin, NoLogin } from "../../custom/LoginProcess";
+import {
+  CheckExpired,
+  CheckRoleInAdmin,
+  NoLogin,
+} from "../../custom/LoginProcess";
 import * as React from "react";
 import Button from "@mui/material/Button";
 import Popover from "@mui/material/Popover";
@@ -45,21 +49,25 @@ const ProductCategory = () => {
           <>
             <ListItem>
               <ListItemAvatar>
-                <Avatar sx={{ width: 60, height: 60, marginRight:2 }} m={5} src={author.avatar ? author.avatar : "null"} />
+                <Avatar
+                  sx={{ width: 60, height: 60, marginRight: 2 }}
+                  m={5}
+                  src={author.avatar ? author.avatar : "null"}
+                />
               </ListItemAvatar>
               <ListItemText
                 primary={
                   <Typography variant="h5">
-                      {author.name ? author.name : "null"}
-                    </Typography>
-                  }
+                    {author.name ? author.name : "null"}
+                  </Typography>
+                }
                 secondary={
                   <React.Fragment>
                     <Typography variant="h6">
                       {author.email ? author.email : "null"}
                     </Typography>
                     <Typography variant="h6">
-                    {author.phone ? author.phone : "null"}
+                      {author.phone ? author.phone : "null"}
                     </Typography>
                   </React.Fragment>
                 }
@@ -96,15 +104,12 @@ const ProductCategory = () => {
       sortable: false,
       flex: 1,
       renderCell: ({ row: { classifies } }) => {
-        classifies.map((i)=>{
-          console.log(i.name)
-        })
         return (
           <>
             <Button
               variant="contained"
               onClick={openPopover}
-              sx={{ width: "100%"}}
+              sx={{ width: "100%" }}
             >
               Open Popover
             </Button>
@@ -127,14 +132,14 @@ const ProductCategory = () => {
                   bgcolor: "background.paper",
                 }}
               >
-          {classifies.map((i)=>(
-            <ListItem>
-            <ListItemAvatar>
-              <Avatar src={i.image} />
-            </ListItemAvatar>
-            <ListItemText primary={i.name} secondary={i.quantity} />
-          </ListItem>
-          ))}
+                {classifies.map((i) => (
+                  <ListItem>
+                    {/* <ListItemAvatar>
+                      <Avatar src={i.image} />
+                    </ListItemAvatar> */}
+                    <ListItemText primary={i.name} secondary={i.quantity} />
+                  </ListItem>
+                ))}
               </List>
             </Popover>
           </>

@@ -14,6 +14,9 @@ import ListBill from "./screenes/listBill";
 import Panner from "./screenes/panner";
 import Seller from "./screenes/seller";
 import Page404 from "./screenes/404";
+import RegisterSeller from "./screenes/registerSeller";
+import RegisterSellerPhone from "./screenes/registerSellerPhone";
+import PhoneAuth from "./screenes/testPhone";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -31,7 +34,10 @@ function App() {
     getQueryParams != "panner" &&
     getQueryParams != "shippingMethods" &&
     getQueryParams != "listBill" &&
-    getQueryParams != "login"
+    getQueryParams != "login"&&
+    getQueryParams != "register"&&
+    getQueryParams != "registerPhone"&&
+    getQueryParams != "testphone" 
   ) {
     sidebar = <></>;
     page404 = (
@@ -64,6 +70,9 @@ function App() {
               <Route path="/banner" element={<Panner />} />
               <Route path="/shippingMethods" element={<ShippingMethods />} />
               <Route path="/login/:tokenExpired?" element={<Login />} />
+              <Route path="/register" element={<RegisterSeller />} />
+              <Route path="/registerPhone" element={<RegisterSellerPhone />} />
+              <Route path="/testphone" element={<PhoneAuth />} />
             </Routes>
           </main>
         </div>

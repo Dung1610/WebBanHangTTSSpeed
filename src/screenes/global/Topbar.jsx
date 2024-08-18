@@ -53,7 +53,7 @@ const Topbar = ({}) => {
         </IconButton>
         {localStorage.getItem("token") && (
           <>
-          {localStorage.getItem("token") == 'nguoi-ban' ? 
+          {localStorage.getItem("role") == 'nguoi-ban' ? 
           <>
           <IconButton
               onClick={handleBadgeVisibility}

@@ -122,13 +122,11 @@ const TreeNode = ({ node }) => {
         </ListItemIcon>
         <ListItemText primary={node.name} />
         <Stack spacing={2} direction="row">
-          <Button onClick={handleOpenAdd} variant="contained" color="success">
-            <Link to={`/product/${node.code}`}>
-              <Typography variant="h6" color="#fff">
+          <Link to={`/product/${node.code}`} variant="contained">
+              <Typography variant="h6" >
                 Xem Chi Tiết
               </Typography>
-            </Link>
-          </Button>
+          </Link>
           <Button onClick={handleOpenAdd} variant="contained" color="success">
             <Typography variant="h6" color="#fff">
               Thêm danh mục con

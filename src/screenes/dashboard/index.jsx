@@ -91,7 +91,7 @@ const Dashboard = () => {
       });
     setSender(sender);
 
-    const socket = new WebSocket(`ws://192.168.1.13:3333/ws/chat/${code}`);
+    const socket = new WebSocket(`ws://192.168.1.13:8000/ws/chat/${code}`);
     socket.onopen = function () {
       console.log("WebSocket connection established");
       setWs(socket);

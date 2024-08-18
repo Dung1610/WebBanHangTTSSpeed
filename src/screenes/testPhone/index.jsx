@@ -2,7 +2,6 @@ import { Box, Button, styled, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import firebase from "../../custom/firebase";
 
-
 const FormInput = styled(Box)(() => ({
   display: "flex",
   gap: "12px",
@@ -15,7 +14,7 @@ const FormOtp = styled(Box)(() => ({
   margin: "100px",
 }));
 
-function PhoneAuth() {
+function App() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
 
@@ -60,6 +59,7 @@ function PhoneAuth() {
   useEffect(() => {
     setUpRecapcha();
   }, []);
+  
   return (
     <>
       <FormOtp>
@@ -92,4 +92,4 @@ function PhoneAuth() {
   );
 }
 
-export default PhoneAuth;
+export default App;

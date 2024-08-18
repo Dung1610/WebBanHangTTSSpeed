@@ -74,23 +74,19 @@ const Login = () => {
           }
 
           if (data.data.roleCode == "quan-tri-vien") {
-
             if (data.data.user.name != null) {
               localStorage.setItem("name", data.data.user.name);
             } else {
               localStorage.setItem("name", "Admin");
             }
             window.location.href = "/dashboard";
-
           } else if (data.data.roleCode == "nguoi-ban") {
-
             if (data.data.user.name != null) {
               localStorage.setItem("name", data.data.user.name);
             } else {
               localStorage.setItem("name", "Shop");
             }
             window.location.href = "/seller";
-
           } else {
             setThongBao("Bạn không có quyền truy cập trang này!");
           }
@@ -164,6 +160,23 @@ const Login = () => {
                 helperText={touched.password && errors.password}
                 sx={{ gridColumn: "span 4" }}
               />
+              <Typography
+                variant="h4"
+                fontWeight="600"
+                sx={{
+                  cursor: "pointer",
+                  position: "absolute",
+                  right: "10%",
+                  top: "35%",
+                  textDecoration: "underline",
+                  color: "blue"
+                }}
+                onClick={() => {
+                  window.location.href = "/select-register";
+                }}
+              >
+                Register?
+              </Typography>
             </Box>
             <Box
               display="flex"

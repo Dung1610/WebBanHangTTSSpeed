@@ -8,7 +8,9 @@ import {
   Typography,
   Container,
   Paper,
+  Grid,
 } from "@mui/material";
+import firebase from "../../custom/firebase";
 import * as yup from "yup";
 import React, { useEffect, useState } from "react";
 import { Login as Lg } from "../../custom/LoginProcess";
@@ -16,7 +18,7 @@ import { useTheme } from "@emotion/react";
 import { tokens } from "../../theme";
 import Modal from "@mui/material/Modal";
 import { styled } from "@mui/system";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { myAxios } from "../../Services/axios";
 import { Phone } from "@mui/icons-material";
 
@@ -67,11 +69,13 @@ const initialValues = {
   roleCode: "nguoi-ban",
 };
 
+const phoneRegExp = /^[+]?[\d\s-]{10,15}$/;
+
 const checkoutSchema = yup.object().shape({
-  email: yup
+  phone: yup
     .string()
-    .email("Email Không Đúng Định Dạng")
-    .required("Email Không Được Để Trống"),
+    .matches(phoneRegExp, "Phone number is not valid") // Xác thực số điện thoại
+    .required("Phone number is required"),
   password: yup.string().required("Mật Khẩu Không Được Để Trống"),
 });
 
@@ -83,6 +87,7 @@ const RegisterSellerPhone = () => {
   const handleOpen = () => setOpenModal(true);
   const [file, setFile] = useState(null);
   const [checkToken, setCheckToken] = useState("");
+  const [otp, setOtp] = useState(Array(6).fill(""));
   const handleClose = () => {
     setStatus("idle");
     setOpenModal(false);
@@ -96,52 +101,136 @@ const RegisterSellerPhone = () => {
       {}
     );
   const Huy = () => {
-    navigate('/login');
+    navigate("/login");
   };
 
   //handleFormSubmit
-  const handleFormSubmit = (values) => {
+  const handleFormSubmit = async (values) => {
     const data = {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        avatar: "",
-        roleCode: "nguoi-ban",
+      name: values.name,
+      phone: values.phone,
+      password: values.password,
+      avatar: "",
+      roleCode: "nguoi-ban",
     };
     const formData = new FormData();
     formData.append("files", file);
     myAxios
-        .post("http://localhost:5181/api/uploads", formData)
-        .then((reponse) => {
-          data.avatar = reponse.data[0]
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    myAxios
-    .post("register", data)
-    .then((reponse) => {
-        console.log(reponse.data)
-        // setCheckToken(reponse.data)
-        handleOpen()
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
+      .post("http://localhost:5181/api/uploads", formData)
+      .then((reponse) => {
+        data.avatar = reponse.data[0];
+        myAxios
+          .post("register", data)
+          .then((reponse) => {
+            setCheckToken(reponse.data);
+            handleOpen();
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+
+    let formattedPhoneNumber = data.phone;
+    if (formattedPhoneNumber.startsWith("0")) {
+      formattedPhoneNumber = "+84" + formattedPhoneNumber.slice(1);
+    }
+
+    //send otp
+    const appVerify = window.recaptchaVerifier;
+    await firebase
+      .auth()
+      .signInWithPhoneNumber(formattedPhoneNumber, appVerify)
+      .then((confirmation) => {
+        window.confirmationResult = confirmation;
+        alert("Da gui otp thanh cong");
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Da gui otp that bai");
+      });
+  };
+
+  const setUpRecapcha = () => {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+      "sign-in-button",
+      {
+        size: "invisible",
+        defaultCountry: "VN",
+      }
+    );
   };
 
   const [status, setStatus] = useState("idle");
 
-  const checkStatus = async () => {
-    
+  const handleChange = (e, index) => {
+    const value = e.target.value;
+    if (/^\d$/.test(value) || value === "") {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+
+      // Tự động chuyển đến trường tiếp theo nếu có
+      if (value && index < otp.length - 1) {
+        document.getElementById(`otp-input-${index + 1}`).focus();
+      }
+    }
   };
+
+  const checkStatus = () => {
+    let o = "";
+    otp.map((value) => {
+      o += value;
+    });
+
+    // window.confirmationResult
+    //   .confirm(o)
+    //   .then(() => {
+    //     alert("Xac thuc thanh cong");
+        myAxios
+          .get(`users/phone/verify/${checkToken}`)
+          .then((data) => {
+            if (data.status == 200) {
+              setCheckToken("");
+              localStorage.setItem("token", data.data.token);
+              localStorage.setItem("role", data.data.roleCode);
+              localStorage.setItem("image", data.data.user.avatar);
+              localStorage.setItem("refreshToken", data.data.user.refreshToken);
+              if (data.data.user.email != null) {
+                localStorage.setItem("user", data.data.user.email);
+              } else {
+                localStorage.setItem("user", data.data.user.phone);
+              }
+              if (data.data.roleCode == "nguoi-ban") {
+                if (data.data.user.name != null) {
+                  localStorage.setItem("name", data.data.user.name);
+                } else {
+                  localStorage.setItem("name", "Shop");
+                }
+                window.location.href = "/seller";
+              }
+            }
+            console.log(data.data);
+          })
+          .catch((error) => {
+            setStatus("unverified");
+            console.error("Error:", error);
+          });
+      // })
+      // .catch((error) => {
+      //   alert("Xac thuc that bai");
+      // });
+  };
+
+  useEffect(() => {
+    setUpRecapcha();
+  }, []);
 
   return (
     <Box m="20px" textAlign="center">
-      <Header
-        title="Đăng Kí Tài Khoản"
-        variant="h1"
-      />
+      <Header title="Đăng Kí Tài Khoản" variant="h1" />
       <StyledContainerDK>
         <Formik
           onSubmit={handleFormSubmit}
@@ -158,8 +247,8 @@ const RegisterSellerPhone = () => {
           }) => (
             <form onSubmit={handleSubmit}>
               <Box display="flex" justifyContent="center">
-                  <RoundedImage>
-                <Button component="label">
+                <RoundedImage>
+                  <Button component="label">
                     <input
                       type="file"
                       accept="image/*"
@@ -174,13 +263,13 @@ const RegisterSellerPhone = () => {
                         style={{ width: 100, height: 100 }}
                       />
                     ) : (
-                        <img
+                      <img
                         src="https://st5.depositphotos.com/19428878/63971/v/450/depositphotos_639712656-stock-illustration-add-profile-picture-icon-vector.jpg"
                         style={{ width: 100, height: 100 }}
-                        />
+                      />
                     )}
-                </Button>
-                    </RoundedImage>
+                  </Button>
+                </RoundedImage>
               </Box>
               <Box
                 justifyItems="center"
@@ -244,7 +333,7 @@ const RegisterSellerPhone = () => {
                   variant="contained"
                   fullWidth
                   sx={{
-                    marginRight: "40px"
+                    marginRight: "40px",
                   }}
                 >
                   <Typography variant="h5" fontWeight="600">
@@ -282,31 +371,68 @@ const RegisterSellerPhone = () => {
       </StyledContainerDK>
       <Modal open={openModal} onClose={handleClose}>
         <StyledContainer>
-          <StyledPaper elevation={3}>
+          {/* <StyledPaper elevation={3}>
             <GmailIcon
               src="https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png"
               alt="Gmail Icon"
             />
             <Typography variant="h4" gutterBottom>
-              Kiểm tra xác thực tài khoản
+              Nhập mã Otp
             </Typography>
             <StyledButton
               variant="contained"
               color="primary"
               onClick={checkStatus}
             >
-                "Check Status"
+              Gửi
             </StyledButton>
             {status === "unverified" && (
               <>
                 <Typography variant="h5" color="red" marginTop={2}>
-                  ⚠️ Người dùng vẫn chưa xác thực
+                  ⚠️ Sai mã
                 </Typography>
               </>
             )}
-          </StyledPaper>
+          </StyledPaper> */}
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: 400,
+              mx: "auto",
+              mt: 4,
+              p: 3,
+              borderRadius: 2,
+              boxShadow: 3,
+              background: "green",
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Enter OTP
+            </Typography>
+            <Grid container spacing={2} justifyContent="center">
+              {otp.map((value, index) => (
+                <Grid item key={index}>
+                  <TextField
+                    id={`otp-input-${index}`}
+                    value={value}
+                    onChange={(e) => handleChange(e, index)}
+                    inputProps={{ maxLength: 1 }}
+                    variant="outlined"
+                    sx={{ width: 50 }}
+                    autoFocus={index === 0}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            <Box mt={2} textAlign="center">
+              <Button variant="contained" color="primary" onClick={checkStatus}>
+                Gửi
+              </Button>
+            </Box>
+          </Box>
         </StyledContainer>
       </Modal>
+      <div id="sign-in-button"></div>
     </Box>
   );
 };

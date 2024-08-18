@@ -20,7 +20,7 @@ import { useTheme } from "@emotion/react";
 import { tokens } from "../../theme";
 import Modal from "@mui/material/Modal";
 import { styled } from "@mui/system";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { myAxios } from "../../Services/axios";
 
 const StyledContainer = styled(Container)({
@@ -100,80 +100,77 @@ const RegisterSeller = () => {
     );
 
   const Huy = () => {
-    navigate('/login');
+    navigate("/select-register");
   };
 
   //handleFormSubmit
   const handleFormSubmit = (values) => {
     const data = {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        avatar: "",
-        roleCode: "nguoi-ban",
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      avatar: "",
+      roleCode: "nguoi-ban",
     };
     const formData = new FormData();
     formData.append("files", file);
     myAxios
-        .post("http://localhost:5181/api/uploads", formData)
-        .then((reponse) => {
-          data.avatar = reponse.data[0]
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    myAxios
-    .post("register", data)
-    .then((reponse) => {
-        console.log(reponse.data)
-        setCheckToken(reponse.data)
-        handleOpen()
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
+      .post("http://localhost:5181/api/uploads", formData)
+      .then((reponse) => {
+        data.avatar = reponse.data[0];
+        myAxios
+          .post("register", data)
+          .then((reponse) => {
+            console.log(reponse.data);
+            setCheckToken(reponse.data);
+            handleOpen();
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   const [status, setStatus] = useState("idle"); // 'idle', 'loading', 'verified', 'unverified', 'error'
 
   const checkStatus = async () => {
     myAxios
-    .get(`users/check-verify/${checkToken}`)
-    .then((data) => {
+      .get(`users/check-verify/${checkToken}`)
+      .then((data) => {
         if (data.status == 200) {
-            setCheckToken("")
-            localStorage.setItem("token", data.data.token);
-            localStorage.setItem("role", data.data.roleCode);
-            localStorage.setItem("image", data.data.user.avatar);
-            localStorage.setItem("refreshToken", data.data.user.refreshToken);
-            if (data.data.user.email != null) {
-              localStorage.setItem("user", data.data.user.email);
+          setCheckToken("");
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("role", data.data.roleCode);
+          localStorage.setItem("image", data.data.user.avatar);
+          localStorage.setItem("refreshToken", data.data.user.refreshToken);
+          if (data.data.user.email != null) {
+            localStorage.setItem("user", data.data.user.email);
+          } else {
+            localStorage.setItem("user", data.data.user.phone);
+          }
+          if (data.data.roleCode == "nguoi-ban") {
+            if (data.data.user.name != null) {
+              localStorage.setItem("name", data.data.user.name);
             } else {
-              localStorage.setItem("user", data.data.user.phone);
+              localStorage.setItem("name", "Shop");
             }
-            if (data.data.roleCode == "nguoi-ban") {
-              if (data.data.user.name != null) {
-                localStorage.setItem("name", data.data.user.name);
-              } else {
-                localStorage.setItem("name", "Shop");
-              }
-              window.location.href = "/seller";
-            } 
+            window.location.href = "/seller";
+          }
         }
-        console.log(data.data)
-    })
-    .catch((error) => {
-        setStatus('unverified')
-      console.error("Error:", error);
-    });
+        console.log(data.data);
+      })
+      .catch((error) => {
+        setStatus("unverified");
+        console.error("Error:", error);
+      });
   };
 
   return (
     <Box m="20px" textAlign="center">
-      <Header
-        title="Đăng Kí Tài Khoản"
-        variant="h1"
-      />
+      <Header title="Đăng Kí Tài Khoản" variant="h1" />
       <StyledContainerDK>
         <Formik
           onSubmit={handleFormSubmit}
@@ -190,8 +187,8 @@ const RegisterSeller = () => {
           }) => (
             <form onSubmit={handleSubmit}>
               <Box display="flex" justifyContent="center">
-                  <RoundedImage>
-                <Button component="label">
+                <RoundedImage>
+                  <Button component="label">
                     <input
                       type="file"
                       accept="image/*"
@@ -206,13 +203,13 @@ const RegisterSeller = () => {
                         style={{ width: 100, height: 100 }}
                       />
                     ) : (
-                        <img
+                      <img
                         src="https://st5.depositphotos.com/19428878/63971/v/450/depositphotos_639712656-stock-illustration-add-profile-picture-icon-vector.jpg"
                         style={{ width: 100, height: 100 }}
-                        />
+                      />
                     )}
-                </Button>
-                    </RoundedImage>
+                  </Button>
+                </RoundedImage>
               </Box>
               <Box
                 justifyItems="center"
@@ -276,7 +273,7 @@ const RegisterSeller = () => {
                   variant="contained"
                   fullWidth
                   sx={{
-                    marginRight: "40px"
+                    marginRight: "40px",
                   }}
                 >
                   <Typography variant="h5" fontWeight="600">
@@ -291,7 +288,7 @@ const RegisterSeller = () => {
                   onClick={Huy}
                 >
                   <Typography variant="h5" fontWeight="600">
-                    Quay về trang đăng nhập
+                    Quay về trang trước
                   </Typography>
                 </Button>
               </Box>
@@ -327,7 +324,7 @@ const RegisterSeller = () => {
               color="primary"
               onClick={checkStatus}
             >
-                "Check Status"
+              "Check Status"
             </StyledButton>
             {status === "unverified" && (
               <>

@@ -17,6 +17,7 @@ import Page404 from "./screenes/404";
 import RegisterSeller from "./screenes/registerSeller";
 import RegisterSellerPhone from "./screenes/registerSellerPhone";
 import PhoneAuth from "./screenes/testPhone";
+import SelectRegister from "./screenes/selectionRegister";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -37,7 +38,8 @@ function App() {
     getQueryParams != "login"&&
     getQueryParams != "register"&&
     getQueryParams != "registerPhone"&&
-    getQueryParams != "testphone" 
+    getQueryParams != "select-register"&&
+    getQueryParams != "test" 
   ) {
     sidebar = <></>;
     page404 = (
@@ -61,6 +63,7 @@ function App() {
             {page404}
             <Routes>
               <Route path="/seller" element={<Seller />} />
+              <Route path="/select-register" element={<SelectRegister />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/userTable" element={<UserTable />} />
               <Route path="/categoryTable" element={<CategoryTable />} />
@@ -72,7 +75,7 @@ function App() {
               <Route path="/login/:tokenExpired?" element={<Login />} />
               <Route path="/register" element={<RegisterSeller />} />
               <Route path="/registerPhone" element={<RegisterSellerPhone />} />
-              <Route path="/testphone" element={<PhoneAuth />} />
+              <Route path="/test" element={<PhoneAuth />} />
             </Routes>
           </main>
         </div>

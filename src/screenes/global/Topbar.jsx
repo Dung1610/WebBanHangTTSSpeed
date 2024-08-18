@@ -13,17 +13,15 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Divider from "@mui/material/Divider";
 import ListItemText from "@mui/material/ListItemText";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-import Typography from "@mui/material/Typography";
 import { useState } from "react";
+import { myAxios } from "../../Services/axios";
 
 const Topbar = ({}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const [invisible, setInvisible] = React.useState(false);
-  const [badge, setBadge] = React.useState(9);
+  const [thongBao, setThongBao] = React.useState([]);
   const [anchor, setAnchor] = useState(null);
 
   const handleLogout = () => {
@@ -40,6 +38,25 @@ const Topbar = ({}) => {
     setAnchor(event.currentTarget);
   };
 
+  React.useEffect(() => {
+    getThongBao();
+  }, []);
+
+  const getThongBao = () => {
+    myAxios
+      .get(
+        `http://localhost:5181/api/users/notifications/${localStorage.getItem(
+          "user"
+        )}?status=-1`
+      )
+      .then((reponse) => {
+        setThongBao(reponse.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   return (
     <Box display="flex" sx={{ justifyContent: "flex-end" }} p={2}>
       {/* ICONS */}
@@ -53,226 +70,43 @@ const Topbar = ({}) => {
         </IconButton>
         {localStorage.getItem("token") && (
           <>
-          {localStorage.getItem("role") == 'nguoi-ban' ? 
-          <>
-          <IconButton
-              onClick={handleBadgeVisibility}
-              title={`Bạn Có ${badge} Thông Báo`}
-            >
-              <Badge
-                badgeContent={badge}
-                color="secondary"
-                invisible={invisible}
-              >
-                <NotificationsOutlinedIcon fontSize="large"/>
-              </Badge>
-            </IconButton>
-            <Popover
-              open={Boolean(anchor)}
-              anchorEl={anchor}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "center",
-              }}
-              transformOrigin={{
-                horizontal: "right",
-                vertical: 'top'
-              }}
-              onClose={() => setAnchor(null)}
-            >
-                <List
-                style={{maxHeight: '30vh', overflow: 'auto'}}
-                  sx={{
-                    width: "100%",
-                    maxWidth: 360,
-                    bgcolor: "background.paper",
+            {localStorage.getItem("role") == "nguoi-ban" ? (
+              <>
+                <IconButton onClick={handleBadgeVisibility}>
+                  <Badge color="secondary" invisible={invisible}>
+                    <NotificationsOutlinedIcon fontSize="large" />
+                  </Badge>
+                </IconButton>
+                <Popover
+                  open={Boolean(anchor)}
+                  anchorEl={anchor}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
                   }}
-                ><ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar
-                    alt="Remy Sharp"
-                    src="/static/images/avatar/1.jpg"
-                  />
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Brunch this weekend?"
-                  secondary={
-                    <React.Fragment>
-                      <Typography
-                        sx={{ display: "inline" }}
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
-                      >
-                        Ali Connors
-                      </Typography>
-                      {
-                        " — I'll be in your neighborhood doing errands this…"
-                      }
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-              <Divider variant="inset" component="li" /><ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar
-                        alt="Remy Sharp"
-                        src="/static/images/avatar/1.jpg"
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary="Brunch this weekend?"
-                      secondary={
-                        <React.Fragment>
-                          <Typography
-                            sx={{ display: "inline" }}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            Ali Connors
-                          </Typography>
-                          {
-                            " — I'll be in your neighborhood doing errands this…"
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                  </ListItem>
-                  <Divider variant="inset" component="li" /><ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar
-                        alt="Remy Sharp"
-                        src="/static/images/avatar/1.jpg"
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary="Brunch this weekend?"
-                      secondary={
-                        <React.Fragment>
-                          <Typography
-                            sx={{ display: "inline" }}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            Ali Connors
-                          </Typography>
-                          {
-                            " — I'll be in your neighborhood doing errands this…"
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                  </ListItem>
-                  <Divider variant="inset" component="li" /><ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar
-                        alt="Remy Sharp"
-                        src="/static/images/avatar/1.jpg"
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary="Brunch this weekend?"
-                      secondary={
-                        <React.Fragment>
-                          <Typography
-                            sx={{ display: "inline" }}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            Ali Connors
-                          </Typography>
-                          {
-                            " — I'll be in your neighborhood doing errands this…"
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                  </ListItem>
-                  <Divider variant="inset" component="li" />
-                  <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar
-                        alt="Remy Sharp"
-                        src="/static/images/avatar/1.jpg"
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary="Brunch this weekend?"
-                      secondary={
-                        <React.Fragment>
-                          <Typography
-                            sx={{ display: "inline" }}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            Ali Connors
-                          </Typography>
-                          {
-                            " — I'll be in your neighborhood doing errands this…"
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                  </ListItem>
-                  <Divider variant="inset" component="li" />
-                  <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar
-                        alt="Travis Howard"
-                        src="/static/images/avatar/2.jpg"
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary="Summer BBQ"
-                      secondary={
-                        <React.Fragment>
-                          <Typography
-                            sx={{ display: "inline" }}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            to Scott, Alex, Jennifer
-                          </Typography>
-                          {" — Wish I could come, but I'm out of town this…"}
-                        </React.Fragment>
-                      }
-                    />
-                  </ListItem>
-                  <Divider variant="inset" component="li" />
-                  <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar
-                        alt="Cindy Baker"
-                        src="/static/images/avatar/3.jpg"
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary="Oui Oui"
-                      secondary={
-                        <React.Fragment>
-                          <Typography
-                            sx={{ display: "inline" }}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            Sandra Adams
-                          </Typography>
-                          {
-                            " — Do you have Paris recommendations? Have you ever…"
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                  </ListItem>
-                </List>
-            </Popover>
-            </> : null}
+                  transformOrigin={{
+                    horizontal: "right",
+                    vertical: "top",
+                  }}
+                  onClose={() => setAnchor(null)}
+                >
+                  <List
+                    style={{ maxHeight: "30vh", overflow: "auto" }}
+                    sx={{
+                      width: "100%",
+                      maxWidth: 360,
+                      bgcolor: "background.paper",
+                    }}
+                  >
+                    {thongBao.map((i) => (
+                      <ListItem>
+                      <ListItemText primary={i.message} secondary={i.createdAt} />
+                    </ListItem>
+                    ))}
+                  </List>
+                </Popover>
+              </>
+            ) : null}
             <IconButton onClick={handleLogout}>
               <LogoutOutlineIcon fontSize="large" />
             </IconButton>

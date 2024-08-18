@@ -134,9 +134,9 @@ const ProductCategory = () => {
               >
                 {classifies.map((i) => (
                   <ListItem>
-                    {/* <ListItemAvatar>
+                    <ListItemAvatar>
                       <Avatar src={i.image} />
-                    </ListItemAvatar> */}
+                    </ListItemAvatar>
                     <ListItemText primary={i.name} secondary={i.quantity} />
                   </ListItem>
                 ))}

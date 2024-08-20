@@ -185,10 +185,10 @@ const RegisterSellerPhone = () => {
       o += value;
     });
 
-    // window.confirmationResult
-    //   .confirm(o)
-    //   .then(() => {
-    //     alert("Xac thuc thanh cong");
+    window.confirmationResult
+      .confirm(o)
+      .then(() => {
+        alert("Xac thuc thanh cong");
         myAxios
           .get(`users/phone/verify/${checkToken}`)
           .then((data) => {
@@ -218,10 +218,10 @@ const RegisterSellerPhone = () => {
             setStatus("unverified");
             console.error("Error:", error);
           });
-      // })
-      // .catch((error) => {
-      //   alert("Xac thuc that bai");
-      // });
+      })
+      .catch((error) => {
+        alert("Xac thuc that bai");
+      });
   };
 
   useEffect(() => {

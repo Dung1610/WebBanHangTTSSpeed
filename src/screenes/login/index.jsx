@@ -166,8 +166,8 @@ const Login = () => {
                 sx={{
                   cursor: "pointer",
                   position: "absolute",
-                  right: "10%",
-                  top: "35%",
+                  right: "12%",
+                  top: "40%",
                   textDecoration: "underline",
                   color: "blue"
                 }}

@@ -102,47 +102,19 @@ const ProductCategory = () => {
       field: "classifies",
       headerName: "Phân Loại",
       sortable: false,
-      flex: 1,
+      flex: 3,
       renderCell: ({ row: { classifies } }) => {
         return (
-          <>
-            <Button
-              variant="contained"
-              onClick={openPopover}
-              sx={{ width: "100%" }}
-            >
-              Open Popover
-            </Button>
-            <Popover
-              open={Boolean(anchor)}
-              anchorEl={anchor}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              transformOrigin={{
-                horizontal: "right",
-              }}
-              onClose={() => setAnchor(null)}
-            >
-              <List
-                sx={{
-                  width: "100%",
-                  maxWidth: 360,
-                  bgcolor: "background.paper",
-                }}
-              >
-                {classifies.map((i) => (
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar src={i.image} />
-                    </ListItemAvatar>
-                    <ListItemText primary={i.name} secondary={i.quantity} />
-                  </ListItem>
-                ))}
-              </List>
-            </Popover>
-          </>
+          <Box display="flex" flexDirection="row">
+            {classifies.map((i) => (
+              <Box>
+                <ListItemAvatar>
+                  <Avatar src={i.image} />
+                </ListItemAvatar>
+                <ListItemText primary={i.name} secondary={i.quantity} />
+              </Box>
+            ))}
+          </Box>
         );
       },
     },

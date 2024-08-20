@@ -8,6 +8,9 @@ import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import HistoryIcon from "@mui/icons-material/History";
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import AlarmOnIcon from '@mui/icons-material/AlarmOn';
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -153,21 +156,21 @@ const Sidebarr = () => {
                   <Item
                     title="List Log"
                     to="/logList"
-                    icon={<HistoryIcon />}
+                    icon={<AlarmOnIcon />}
                     selected={selected}
                     setSelected={setSelected}
                   />
                   <Item
                     title="List Bill"
                     to="/listBill"
-                    icon={<HistoryIcon />}
+                    icon={<AttachMoneyIcon />}
                     selected={selected}
                     setSelected={setSelected}
                   />
                   <Item
                     title="Banner"
                     to="/banner"
-                    icon={<HistoryIcon />}
+                    icon={<ViewCarouselIcon />}
                     selected={selected}
                     setSelected={setSelected}
                   />

@@ -134,7 +134,7 @@ const RegisterSeller = () => {
       });
   };
 
-  const [status, setStatus] = useState("idle"); // 'idle', 'loading', 'verified', 'unverified', 'error'
+  const [status, setStatus] = useState("idle");
 
   const checkStatus = async () => {
     myAxios

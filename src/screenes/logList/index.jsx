@@ -116,7 +116,7 @@ const LogList = () => {
   return (
     <Box m="20px">
       <Box display="flex">
-        <Header title="USER TABLE" subtitle="Managing the User" />
+        <Header title="Bảng Quản Lí Nhật Kí" />
         <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
           <InputLabel id="demo-select-small-label">Roles</InputLabel>
           <Select

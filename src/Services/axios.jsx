@@ -12,7 +12,7 @@ myAxios.interceptors.response.use(function (response) {
 }, function (error) {
   // Any status codes that falls outside the range of 2xx cause this function to trigger
   // Do something with response error
-  return alert("Yêu cầu quá hạn \nKiểm tra kết nối mạng");
+  return alert(error.message);
   // return Promise.reject(error);
 });
 export { myAxios, baseURL };
